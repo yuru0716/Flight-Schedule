@@ -8,16 +8,18 @@
   body {
     margin: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont;
-    background: #f4f6f8;
+    background: #f7f9fc;
     color: #111;
   }
 
   header {
-    background: #0a2a66;
+    background: #003b8e;
     color: white;
-    padding: 16px;
-    font-size: 20px;
+    padding: 18px;
+    font-size: 18px;
     font-weight: 600;
+    text-align: center;
+    letter-spacing: .5px;
   }
 
   main {
@@ -28,58 +30,68 @@
 
   .flight {
     background: white;
-    border-radius: 14px;
-    padding: 16px;
+    border-radius: 10px;
+    padding: 14px 16px;
     margin-bottom: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+    border-left: 4px solid #003b8e;
   }
 
-  .row {
+  .top {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
   .title {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 600;
   }
 
   .status {
-    font-size: 12px;
+    font-size: 11px;
     padding: 4px 8px;
-    border-radius: 999px;
-    background: #eee;
+    border-radius: 6px;
+    background: #e9eef7;
+    color: #003b8e;
+    white-space: nowrap;
   }
 
-  .checkin { background: #e8f0ff; color: #0a2a66; }
-  .boarding { background: #fff3cd; }
-  .inflight { background: #d1e7dd; }
-  .landed { background: #e9ecef; }
+  .checkin { background: #e9eef7; }
+  .boarding { background: #fff4da; color: #8a5a00; }
+  .inflight { background: #e6f4ea; color: #1e6b3a; }
+  .landed { background: #ececec; color: #555; }
 
   .time {
-    margin-top: 8px;
+    margin-top: 6px;
     font-size: 14px;
-    color: #555;
+    color: #333;
+  }
+
+  .sub {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #666;
   }
 
   button {
-    width: 100%;
-    margin-top: 16px;
+    width: calc(100% - 32px);
+    margin: 20px auto;
+    display: block;
     padding: 14px;
-    border-radius: 12px;
+    border-radius: 10px;
     border: none;
-    font-size: 16px;
-    background: #0a2a66;
+    font-size: 15px;
+    background: #003b8e;
     color: white;
+    font-weight: 600;
   }
 </style>
 </head>
 <body>
 
-<header>My Flights</header>
+<header>MY SCHEDULE</header>
 <main id="list"></main>
-<button onclick="addFlight()">＋ フライトを予約</button>
+<button onclick="addFlight()">＋ 予定を追加</button>
 
 <script>
 const flights = JSON.parse(localStorage.getItem("flights") || "[]");
@@ -117,21 +129,34 @@ function getStatus(f) {
   return ["予約済", ""];
 }
 
+function formatTime(d) {
+  return d.toTimeString().slice(0,5);
+}
+
 function render() {
   const list = document.getElementById("list");
   list.innerHTML = "";
 
   flights.forEach(f => {
     const [label, cls] = getStatus(f);
+
+    const [h, m] = f.time.split(":");
+    const dep = new Date();
+    dep.setHours(h, m, 0);
+    const arr = new Date(dep.getTime() + f.duration * 60000);
+
     const div = document.createElement("div");
     div.className = "flight";
     div.innerHTML = `
-      <div class="row">
+      <div class="top">
         <div class="title">${f.title}</div>
         <div class="status ${cls}">${label}</div>
       </div>
       <div class="time">
-        ✈️ ${f.time} → ${f.duration}分
+        ${formatTime(dep)} → ${formatTime(arr)}
+      </div>
+      <div class="sub">
+        所要時間 ${f.duration}分
       </div>
     `;
     list.appendChild(div);
