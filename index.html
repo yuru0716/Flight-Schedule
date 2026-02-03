@@ -2,141 +2,217 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>My Flights</title>
+<title>My Schedule</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+
 <style>
-  body {
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont;
-    background: #f7f9fc;
-    color: #111;
-  }
+/* ===== Base ===== */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  background: #f7f9fc;
+  color: #111;
+}
 
-  header {
-    background: #003b8e;
-    color: white;
-    padding: 18px;
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-    letter-spacing: .5px;
-  }
+header {
+  background: #003b8e;
+  color: white;
+  padding: 18px;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: .5px;
+}
 
-  main {
-    padding: 16px;
-    max-width: 420px;
-    margin: auto;
-  }
+/* ===== List ===== */
+main {
+  padding: 16px;
+  max-width: 420px;
+  margin: auto;
+}
 
-  .flight {
-    background: white;
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 12px;
-    border-left: 4px solid #003b8e;
-  }
+.flight {
+  background: white;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid #003b8e;
+}
 
-  .top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .title {
-    font-size: 17px;
-    font-weight: 600;
-  }
+.title {
+  font-size: 17px;
+  font-weight: 600;
+}
 
-  .status {
-    font-size: 11px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: #e9eef7;
-    color: #003b8e;
-    white-space: nowrap;
-  }
+.status {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #e9eef7;
+  color: #003b8e;
+}
 
-  .checkin { background: #e9eef7; }
-  .boarding { background: #fff4da; color: #8a5a00; }
-  .inflight { background: #e6f4ea; color: #1e6b3a; }
-  .landed { background: #ececec; color: #555; }
+.boarding { background: #fff4da; color: #8a5a00; }
+.inflight { background: #e6f4ea; color: #1e6b3a; }
+.landed { background: #ececec; color: #555; }
 
-  .time {
-    margin-top: 6px;
-    font-size: 14px;
-    color: #333;
-  }
+.time {
+  margin-top: 6px;
+  font-size: 14px;
+}
 
-  .sub {
-    margin-top: 2px;
-    font-size: 12px;
-    color: #666;
-  }
+.sub {
+  font-size: 12px;
+  color: #666;
+}
 
-  button {
-    width: calc(100% - 32px);
-    margin: 20px auto;
-    display: block;
-    padding: 14px;
-    border-radius: 10px;
-    border: none;
-    font-size: 15px;
-    background: #003b8e;
-    color: white;
-    font-weight: 600;
-  }
+/* ===== Button ===== */
+button {
+  width: calc(100% - 32px);
+  margin: 20px auto;
+  display: block;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  background: #003b8e;
+  color: white;
+  font-weight: 600;
+}
+
+/* ===== Modal ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.hidden { display: none; }
+
+.sheet {
+  background: white;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 16px 16px 0 0;
+  padding: 20px;
+}
+
+.sheet h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  color: #003b8e;
+}
+
+label {
+  display: block;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: #555;
+}
+
+input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.secondary {
+  background: #eee;
+  color: #333;
+  margin-top: 8px;
+}
 </style>
 </head>
+
 <body>
 
 <header>MY SCHEDULE</header>
+
 <main id="list"></main>
-<button onclick="addFlight()">＋ 予定を追加</button>
+<button onclick="openModal()">＋ 予定を追加</button>
+
+<!-- ===== Modal ===== -->
+<div id="modal" class="modal hidden">
+  <div class="sheet">
+    <h2>フライトを予約</h2>
+
+    <label>
+      行き先（予定名）
+      <input id="titleInput" placeholder="例：英語の勉強">
+    </label>
+
+    <label>
+      出発時刻
+      <input id="timeInput" type="time">
+    </label>
+
+    <label>
+      所要時間（分）
+      <input id="durationInput" type="number" placeholder="60">
+    </label>
+
+    <button onclick="submitFlight()">予約する</button>
+    <button class="secondary" onclick="closeModal()">キャンセル</button>
+  </div>
+</div>
 
 <script>
+/* ===== Data ===== */
 const flights = JSON.parse(localStorage.getItem("flights") || "[]");
 
-function addFlight() {
-  const title = prompt("行き先（予定名）");
-  const time = prompt("出発時刻（HH:MM）");
-  const duration = prompt("所要時間（分）");
+/* ===== Modal ===== */
+function openModal() {
+  document.getElementById("modal").classList.remove("hidden");
+}
+function closeModal() {
+  document.getElementById("modal").classList.add("hidden");
+}
 
+function submitFlight() {
+  const title = titleInput.value;
+  const time = timeInput.value;
+  const duration = Number(durationInput.value);
   if (!title || !time || !duration) return;
 
-  flights.push({
-    id: Date.now(),
-    title,
-    time,
-    duration: Number(duration)
-  });
+  flights.push({ id: Date.now(), title, time, duration });
   save();
+  closeModal();
   render();
 }
 
+/* ===== Logic ===== */
 function getStatus(f) {
   const now = new Date();
   const [h, m] = f.time.split(":");
   const dep = new Date();
   dep.setHours(h, m, 0);
-
   const arr = new Date(dep.getTime() + f.duration * 60000);
   const diff = (dep - now) / 60000;
 
   if (now > arr) return ["到着", "landed"];
   if (now >= dep) return ["実行中", "inflight"];
   if (diff <= 10) return ["搭乗中", "boarding"];
-  if (diff <= 30) return ["チェックイン", "checkin"];
+  if (diff <= 30) return ["チェックイン", ""];
   return ["予約済", ""];
 }
 
-function formatTime(d) {
-  return d.toTimeString().slice(0,5);
+function format(t) {
+  return t.toTimeString().slice(0,5);
 }
 
 function render() {
-  const list = document.getElementById("list");
   list.innerHTML = "";
-
   flights.forEach(f => {
     const [label, cls] = getStatus(f);
 
@@ -145,23 +221,17 @@ function render() {
     dep.setHours(h, m, 0);
     const arr = new Date(dep.getTime() + f.duration * 60000);
 
-    const div = document.createElement("div");
-    div.className = "flight";
-    div.innerHTML = `
-      <div class="top">
-        <div class="title">${f.title}</div>
-        <div class="status ${cls}">${label}</div>
-      </div>
-      <div class="time">
-        ${formatTime(dep)} → ${formatTime(arr)}
-      </div>
-      <div class="sub">
-        所要時間 ${f.duration}分
+    list.innerHTML += `
+      <div class="flight">
+        <div class="top">
+          <div class="title">${f.title}</div>
+          <div class="status ${cls}">${label}</div>
+        </div>
+        <div class="time">${format(dep)} → ${format(arr)}</div>
+        <div class="sub">所要時間 ${f.duration}分</div>
       </div>
     `;
-    list.appendChild(div);
   });
-
   save();
 }
 
