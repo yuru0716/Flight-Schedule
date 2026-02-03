@@ -57,18 +57,26 @@
         }
 
         .card-inner { padding: 15px; }
-        .route-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .route-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         
-        /* 3 Letter Code Styling */
         .city-box { text-align: center; width: 80px; }
         .city-code { font-size: 2rem; font-weight: 800; color: var(--ana-blue-dark); letter-spacing: 1px; line-height: 1; }
         .city-name { font-size: 0.7rem; color: #777; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .time-row {
+            display: flex; justify-content: space-between; 
+            background: #f4f7fa; padding: 10px; border-radius: 8px; margin-bottom: 10px;
+        }
+        .time-box { text-align: center; flex: 1; }
+        .time-label { font-size: 0.7rem; color: #666; font-weight: bold; }
+        .time-value { font-size: 1.2rem; font-weight: bold; color: #333; }
+        .duration-center { font-size: 0.8rem; color: #999; align-self: center; }
 
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; color: white; background: #999; }
         .badge-reserved { background: var(--ana-blue-sky); }
         .badge-checkin { background: var(--success); }
         .badge-noshow { background: var(--danger); }
-        .badge-in-flight { background: var(--ana-blue-main); animation: pulse 2s infinite; }
+        .badge-inflight { background: var(--ana-blue-main); animation: pulse 2s infinite; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
@@ -106,31 +114,17 @@
         .airport-code-tag { background: var(--ana-blue-sky); color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
         .delete-btn { color: var(--danger); background: none; border: none; font-size: 1.2rem; cursor: pointer; }
 
-        /* --- Airplane Silhouette & Seat Map (Simplified for integration) --- */
-        .plane-wrapper {
-            position: relative; width: 280px; margin: 20px auto; padding-top: 60px; padding-bottom: 60px;
-        }
-        .fuselage {
-            background: var(--plane-body); width: 100%; height: 100%; border-radius: 140px 140px 80px 80px;
-            position: absolute; top: 0; left: 0; z-index: 1; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e0e0e0;
-        }
-        .cockpit {
-            position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 50px; height: 20px;
-            background: linear-gradient(to bottom, #333, #666); border-radius: 40% 40% 50% 50%; z-index: 2;
-        }
-        .wing-left, .wing-right {
-            position: absolute; top: 300px; width: 100px; height: 180px; background: var(--plane-wing); z-index: 0; border: 1px solid #ccc;
-        }
+        /* Seat Map Elements (Minimized CSS) */
+        .plane-wrapper { position: relative; width: 280px; margin: 20px auto; padding-top: 60px; padding-bottom: 60px; }
+        .fuselage { background: var(--plane-body); width: 100%; height: 100%; border-radius: 140px 140px 80px 80px; position: absolute; top: 0; left: 0; z-index: 1; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; }
+        .cockpit { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 50px; height: 20px; background: linear-gradient(to bottom, #333, #666); border-radius: 40% 40% 50% 50%; z-index: 2; }
+        .wing-left, .wing-right { position: absolute; top: 300px; width: 100px; height: 180px; background: var(--plane-wing); z-index: 0; border: 1px solid #ccc; }
         .wing-left { left: -80px; transform: skewY(15deg); border-radius: 10% 0 0 80%; }
         .wing-right { right: -80px; transform: skewY(-15deg); border-radius: 0 10% 80% 0; }
         .seat-map-container { position: relative; z-index: 10; padding: 20px 10px; }
         .seat-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 6px; }
         .aisle-gap { width: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #ccc; }
-        .seat {
-            width: 28px; height: 28px; background: #eef2f6; border: 1px solid #ccd1d6;
-            border-radius: 4px 4px 8px 8px; display: flex; align-items: center; justify-content: center;
-            font-size: 0.6rem; color: #666; cursor: pointer; position: relative;
-        }
+        .seat { width: 28px; height: 28px; background: #eef2f6; border: 1px solid #ccd1d6; border-radius: 4px 4px 8px 8px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #666; cursor: pointer; position: relative; }
         .seat.selected { background: var(--ana-blue-main); color: white; border-color: var(--ana-blue-dark); transform: scale(1.1); z-index: 20; }
 
         /* Buttons */
@@ -139,12 +133,7 @@
         .btn-add { background: var(--success); color: white; margin-top: 10px; }
         .btn-checkin { background: var(--success); color: white; padding: 10px; border-radius: 8px; margin-top: 10px; width: 100%; }
 
-        .fab {
-            position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px;
-            background: var(--ana-gradient); color: white; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center; font-size: 2.2rem;
-            box-shadow: 0 8px 20px rgba(0,68,130,0.4); border: none; cursor: pointer; z-index: 90;
-        }
+        .fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: var(--ana-gradient); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.2rem; box-shadow: 0 8px 20px rgba(0,68,130,0.4); border: none; cursor: pointer; z-index: 90; }
     </style>
 </head>
 <body>
@@ -180,8 +169,17 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>出発時刻</label>
-                <input type="time" id="timeInput">
+                <label>スケジュール</label>
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1">
+                        <label style="font-size:0.6rem">出発時刻</label>
+                        <input type="time" id="timeInput">
+                    </div>
+                    <div style="flex:1">
+                        <label style="font-size:0.6rem">所要時間 (分)</label>
+                        <input type="number" id="durationInput" value="60" min="10">
+                    </div>
+                </div>
             </div>
             <div class="form-group" onclick="openSeatMap()" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
                 <div>
@@ -237,7 +235,6 @@
 </div>
 
 <script>
-    // --- Data Management ---
     const defaultAirports = [
         {code: 'HME', name: '自宅'},
         {code: 'WRK', name: '仕事'},
@@ -247,7 +244,7 @@
     ];
     
     let airports = JSON.parse(localStorage.getItem('my_airports') || JSON.stringify(defaultAirports));
-    let flights = JSON.parse(localStorage.getItem('ana_flights_v4') || '[]');
+    let flights = JSON.parse(localStorage.getItem('ana_flights_v5') || '[]');
     let tempSeat = null;
 
     // --- Airport Logic ---
@@ -269,20 +266,17 @@
         const nameInput = document.getElementById('newAirportName');
         const code = codeInput.value.trim().toUpperCase();
         const name = nameInput.value.trim();
-
-        if(!code || !name) return alert('コードと名称を入力してください');
-        if(code.length !== 3) return alert('コードは3文字で入力してください');
+        if(!code || !name) return alert('入力してください');
+        if(code.length !== 3) return alert('コードは3文字で');
 
         airports.push({code, name});
         localStorage.setItem('my_airports', JSON.stringify(airports));
-        
-        codeInput.value = '';
-        nameInput.value = '';
+        codeInput.value = ''; nameInput.value = '';
         renderAirportList();
     }
 
     function deleteAirport(index) {
-        if(confirm('この空港を削除しますか？')) {
+        if(confirm('削除しますか？')) {
             airports.splice(index, 1);
             localStorage.setItem('my_airports', JSON.stringify(airports));
             renderAirportList();
@@ -295,7 +289,6 @@
         const options = airports.map(ap => `<option value="${ap.code}">${ap.code} - ${ap.name}</option>`).join('');
         fromSel.innerHTML = options;
         toSel.innerHTML = options;
-        // Set default TO selection to differ from FROM if possible
         if(airports.length > 1) toSel.selectedIndex = 1;
     }
 
@@ -315,7 +308,7 @@
             aisle.className = 'aisle-gap';
             aisle.innerText = r;
             rowDiv.appendChild(aisle);
-            ['H', 'J', 'K'].forEach(col => createSeat(rowDiv, r, col)); // Using ANA typical HJK
+            ['H', 'J', 'K'].forEach(col => createSeat(rowDiv, r, col));
             grid.appendChild(rowDiv);
         }
     }
@@ -338,31 +331,22 @@
     function openNewFlightModal() {
         tempSeat = null;
         document.getElementById('seatLabel').innerText = '未指定';
+        document.getElementById('durationInput').value = 60; // default
         updateSelectOptions();
         document.getElementById('newFlightModal').style.display = 'block';
     }
-    function openAirportModal() {
-        renderAirportList();
-        document.getElementById('airportModal').style.display = 'block';
-    }
-    function openSeatMap() {
-        initSeatMap();
-        document.getElementById('seatModal').style.display = 'block';
-    }
-    function confirmSeat() {
-        if(tempSeat) document.getElementById('seatLabel').innerText = tempSeat;
-        closeModal('seatModal');
-    }
+    function openAirportModal() { renderAirportList(); document.getElementById('airportModal').style.display = 'block'; }
+    function openSeatMap() { initSeatMap(); document.getElementById('seatModal').style.display = 'block'; }
+    function confirmSeat() { if(tempSeat) document.getElementById('seatLabel').innerText = tempSeat; closeModal('seatModal'); }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     // --- Core Logic ---
     function saveFlight() {
         const fromCode = document.getElementById('fromSelect').value;
         const toCode = document.getElementById('toSelect').value;
-        
-        // Find names
         const fromAp = airports.find(a => a.code === fromCode);
         const toAp = airports.find(a => a.code === toCode);
+        const duration = parseInt(document.getElementById('durationInput').value) || 60;
 
         const f = {
             id: Date.now(),
@@ -371,6 +355,7 @@
             to: toCode,
             toName: toAp ? toAp.name : '',
             time: document.getElementById('timeInput').value,
+            duration: duration,
             seat: tempSeat || 'ANY',
             checkedIn: false
         };
@@ -378,7 +363,7 @@
         if(!f.time) return alert('出発時刻を入力してください');
         
         flights.push(f);
-        localStorage.setItem('ana_flights_v4', JSON.stringify(flights));
+        localStorage.setItem('ana_flights_v5', JSON.stringify(flights));
         closeModal('newFlightModal');
         render();
     }
@@ -387,18 +372,19 @@
         const now = new Date();
         const [h, m] = f.time.split(':').map(Number);
         const dep = new Date(); dep.setHours(h, m, 0, 0);
-        const arr = new Date(dep.getTime() + 60 * 60000); 
+        // Duration is used here for arrival calc
+        const arr = new Date(dep.getTime() + f.duration * 60000); 
 
         if (now > dep && !f.checkedIn) return 'NOSHOW';
         if (now > arr) return 'ARRIVED';
-        if (now > dep && f.checkedIn) return 'IN-FLIGHT';
-        if (f.checkedIn) return 'CHECKED-IN';
+        if (now > dep && f.checkedIn) return 'INFLIGHT';
+        if (f.checkedIn) return 'CHECKEDIN';
         return 'RESERVED';
     }
 
     function doCheckIn(id) {
         flights = flights.map(f => f.id === id ? {...f, checkedIn: true} : f);
-        localStorage.setItem('ana_flights_v4', JSON.stringify(flights));
+        localStorage.setItem('ana_flights_v5', JSON.stringify(flights));
         render();
     }
 
@@ -414,6 +400,12 @@
             const status = getStatus(f);
             const isNoShow = status === 'NOSHOW';
             
+            // Calculate Arrival Time for display
+            const [h, m] = f.time.split(':').map(Number);
+            const depDate = new Date(); depDate.setHours(h, m, 0, 0);
+            const arrDate = new Date(depDate.getTime() + f.duration * 60000);
+            const arrTimeStr = arrDate.getHours().toString().padStart(2,'0') + ':' + arrDate.getMinutes().toString().padStart(2,'0');
+
             return `
                 <div class="flight-card">
                     ${isNoShow ? '<div class="noshow-overlay"><div class="noshow-stamp">NO SHOW</div></div>' : ''}
@@ -423,7 +415,7 @@
                             <span style="font-size:0.8rem; color:#999">#${String(f.id).slice(-4)}</span>
                         </div>
                         
-                        <div class="route-row" style="margin: 15px 0;">
+                        <div class="route-row">
                             <div class="city-box">
                                 <div class="city-code">${f.from}</div>
                                 <div class="city-name">${f.fromName}</div>
@@ -435,7 +427,19 @@
                             </div>
                         </div>
 
-                        <div style="font-weight:bold; font-size:1.1rem; text-align:center;">DEP ${f.time}</div>
+                        <div class="time-row">
+                            <div class="time-box">
+                                <div class="time-label">DEP</div>
+                                <div class="time-value">${f.time}</div>
+                            </div>
+                            <div class="duration-center">
+                                ⎯ ${f.duration}min ⎯
+                            </div>
+                            <div class="time-box">
+                                <div class="time-label">ARR</div>
+                                <div class="time-value">${arrTimeStr}</div>
+                            </div>
+                        </div>
                         
                         ${(!f.checkedIn && !isNoShow) ? `<button class="btn btn-checkin" onclick="doCheckIn(${f.id})">オンラインチェックイン</button>` : ''}
                     </div>
