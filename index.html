@@ -16,6 +16,8 @@
             --text-main: #333;
             --danger: #d93025;
             --success: #1e8e3e;
+            --gold: #d4af37;
+            --diamond: #b9f2ff;
         }
 
         body {
@@ -33,7 +35,13 @@
             position: sticky; top: 0; z-index: 100;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
+        .header-left { display: flex; flex-direction: column; }
         .header-title { font-size: 1.2rem; font-weight: bold; }
+        .mile-display { font-size: 0.8rem; color: var(--gold); font-weight: bold; margin-top: 2px; }
+        .status-badge-header { font-size: 0.6rem; padding: 1px 5px; border-radius: 3px; margin-left: 5px; vertical-align: middle; }
+        .st-BRONZE { background: #cd7f32; color: white; }
+        .st-SAPPHIRE { background: #0f52ba; color: white; }
+        .st-DIAMOND { background: var(--diamond); color: #004482; }
         .header-icon { font-size: 1.5rem; cursor: pointer; }
 
         .container { padding: 15px; max-width: 600px; margin: 0 auto; padding-bottom: 100px; }
@@ -58,7 +66,6 @@
 
         .card-inner { padding: 15px; }
         .route-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        
         .city-box { text-align: center; width: 80px; }
         .city-code { font-size: 2rem; font-weight: 800; color: var(--ana-blue-dark); letter-spacing: 1px; line-height: 1; }
         .city-name { font-size: 0.7rem; color: #777; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -77,10 +84,12 @@
         .badge-checkin { background: var(--success); }
         .badge-noshow { background: var(--danger); }
         .badge-inflight { background: var(--ana-blue-main); animation: pulse 2s infinite; }
+        .badge-arrived { background: var(--gold); }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
         .boarding-pass { background: #f9f9f9; border-top: 1px dashed #ddd; padding: 12px; font-size: 0.8rem; }
+        .mile-tag { color: var(--gold); font-weight: bold; font-size: 0.7rem; text-align: right; margin-top: 5px; }
 
         /* Modal */
         .modal {
@@ -98,7 +107,6 @@
         /* Inputs */
         .form-group { margin-bottom: 15px; background: white; padding: 15px; border-radius: 8px; }
         .form-group label { display: block; font-size: 0.75rem; color: #666; margin-bottom: 8px; }
-        
         select, input { 
             width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; 
             box-sizing: border-box; font-size: 1rem; background: #fff;
@@ -114,7 +122,7 @@
         .airport-code-tag { background: var(--ana-blue-sky); color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
         .delete-btn { color: var(--danger); background: none; border: none; font-size: 1.2rem; cursor: pointer; }
 
-        /* Seat Map Elements (Minimized CSS) */
+        /* Seat Map Elements */
         .plane-wrapper { position: relative; width: 280px; margin: 20px auto; padding-top: 60px; padding-bottom: 60px; }
         .fuselage { background: var(--plane-body); width: 100%; height: 100%; border-radius: 140px 140px 80px 80px; position: absolute; top: 0; left: 0; z-index: 1; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; }
         .cockpit { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); width: 50px; height: 20px; background: linear-gradient(to bottom, #333, #666); border-radius: 40% 40% 50% 50%; z-index: 2; }
@@ -124,14 +132,15 @@
         .seat-map-container { position: relative; z-index: 10; padding: 20px 10px; }
         .seat-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 6px; }
         .aisle-gap { width: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #ccc; }
-        .seat { width: 28px; height: 28px; background: #eef2f6; border: 1px solid #ccd1d6; border-radius: 4px 4px 8px 8px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #666; cursor: pointer; position: relative; }
-        .seat.selected { background: var(--ana-blue-main); color: white; border-color: var(--ana-blue-dark); transform: scale(1.1); z-index: 20; }
+        .seat { width: 28px; height: 28px; background: #eef2f6; border: 1px solid #ccd1d6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #666; cursor: pointer; }
+        .seat.selected { background: var(--ana-blue-main); color: white; }
 
         /* Buttons */
         .btn { width: 100%; padding: 14px; border: none; border-radius: 30px; font-weight: bold; cursor: pointer; text-align: center; }
         .btn-save { background: var(--ana-blue-dark); color: white; }
         .btn-add { background: var(--success); color: white; margin-top: 10px; }
         .btn-checkin { background: var(--success); color: white; padding: 10px; border-radius: 8px; margin-top: 10px; width: 100%; }
+        .btn-disabled { background: #ccc !important; cursor: not-allowed; }
 
         .fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: var(--ana-gradient); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.2rem; box-shadow: 0 8px 20px rgba(0,68,130,0.4); border: none; cursor: pointer; z-index: 90; }
     </style>
@@ -139,7 +148,10 @@
 <body>
 
 <header>
-    <div class="header-title">Flight Schedule</div>
+    <div class="header-left">
+        <div class="header-title">Flight Schedule <span id="statusLabel" class="status-badge-header"></span></div>
+        <div class="mile-display">✈ <span id="totalMiles">0</span> MILES</div>
+    </div>
     <div class="header-icon" onclick="openAirportModal()">⚙️</div>
 </header>
 
@@ -155,240 +167,109 @@
         </div>
         <div class="modal-body">
             <div class="form-group">
+                <label>搭乗クラス (ステータス別)</label>
+                <select id="classSelect">
+                    <option value="ECONOMY">普通席 (Economy)</option>
+                    <option value="BUSINESS" id="optPremium" disabled>ビジネスクラス (Sapphire以上)</option>
+                    <option value="FIRST" id="optFirst" disabled>ファーストクラス (Diamond限定)</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label>区間選択</label>
                 <div style="display:flex; gap:10px; align-items: center;">
-                    <div style="flex:1">
-                        <label style="font-size:0.6rem">FROM</label>
-                        <select id="fromSelect"></select>
-                    </div>
+                    <div style="flex:1"><label style="font-size:0.6rem">FROM</label><select id="fromSelect"></select></div>
                     <div style="color:var(--ana-blue-sky)">✈</div>
-                    <div style="flex:1">
-                        <label style="font-size:0.6rem">TO</label>
-                        <select id="toSelect"></select>
-                    </div>
+                    <div style="flex:1"><label style="font-size:0.6rem">TO</label><select id="toSelect"></select></div>
                 </div>
             </div>
             <div class="form-group">
                 <label>スケジュール</label>
                 <div style="display:flex; gap:10px;">
-                    <div style="flex:1">
-                        <label style="font-size:0.6rem">出発時刻</label>
-                        <input type="time" id="timeInput">
-                    </div>
-                    <div style="flex:1">
-                        <label style="font-size:0.6rem">所要時間 (分)</label>
-                        <input type="number" id="durationInput" value="60" min="10">
-                    </div>
+                    <div style="flex:1"><label style="font-size:0.6rem">出発時刻</label><input type="time" id="timeInput"></div>
+                    <div style="flex:1"><label style="font-size:0.6rem">所要時間 (分)</label><input type="number" id="durationInput" value="60"></div>
                 </div>
             </div>
             <div class="form-group" onclick="openSeatMap()" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <label>座席指定</label>
-                    <span id="seatLabel" style="font-weight:bold; color:var(--ana-blue-main); font-size:1.1rem;">未指定</span>
-                </div>
+                <div><label>座席指定</label><span id="seatLabel" style="font-weight:bold; color:var(--ana-blue-main);">未指定</span></div>
                 <div style="color:var(--ana-blue-sky)">選択 &gt;</div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-save" onclick="saveFlight()">予約確定</button>
-        </div>
+        <div class="modal-footer"><button class="btn btn-save" onclick="saveFlight()">予約確定</button></div>
     </div>
 </div>
 
 <div id="airportModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header-ana">
-            <strong>マイ空港（タスク拠点）設定</strong>
-            <span onclick="closeModal('airportModal')" style="cursor:pointer; font-size:1.5rem">×</span>
-        </div>
+        <div class="modal-header-ana"><strong>マイ空港設定</strong><span onclick="closeModal('airportModal')" style="cursor:pointer; font-size:1.5rem">×</span></div>
         <div class="modal-body">
             <div class="form-group">
-                <label>新規登録</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="newAirportCode" placeholder="3レター (例: WRK)" maxlength="3" style="flex:1; text-transform:uppercase;">
-                    <input type="text" id="newAirportName" placeholder="名称 (例: 仕事)" style="flex:2;">
-                </div>
-                <button class="btn btn-add" onclick="addAirport()" style="border-radius:8px; padding:10px;">追加登録</button>
+                <div style="display:flex; gap:10px;"><input type="text" id="newAirportCode" placeholder="3レター" maxlength="3" style="flex:1; text-transform:uppercase;"><input type="text" id="newAirportName" placeholder="名称" style="flex:2;"></div>
+                <button class="btn btn-add" onclick="addAirport()">追加登録</button>
             </div>
-            <div style="margin-top:20px;">
-                <label style="font-size:0.8rem; color:#666; margin-bottom:10px; display:block;">登録済み空港リスト</label>
-                <ul class="airport-list" id="airportListUi"></ul>
-            </div>
+            <ul class="airport-list" id="airportListUi"></ul>
         </div>
     </div>
 </div>
 
 <div id="seatModal" class="modal">
     <div class="modal-content" style="height:90vh;">
-        <div class="modal-header-ana">
-            <strong>座席指定</strong>
-            <span onclick="confirmSeat()" style="cursor:pointer">決定</span>
-        </div>
+        <div class="modal-header-ana"><strong>座席指定</strong><span onclick="confirmSeat()" style="cursor:pointer">決定</span></div>
         <div class="modal-body" style="background: #dce1e6;">
-            <div class="plane-wrapper" id="planeWrapper">
-                <div class="wing-left"></div><div class="wing-right"></div>
-                <div class="fuselage"><div class="cockpit"></div></div>
-                <div class="seat-map-container" id="seatGrid"></div>
-            </div>
+            <div class="plane-wrapper" id="planeWrapper"><div class="wing-left"></div><div class="wing-right"></div><div class="fuselage"><div class="cockpit"></div></div><div class="seat-map-container" id="seatGrid"></div></div>
         </div>
     </div>
 </div>
 
 <script>
-    const defaultAirports = [
-        {code: 'HME', name: '自宅'},
-        {code: 'WRK', name: '仕事'},
-        {code: 'CFE', name: 'カフェ'},
-        {code: 'GYM', name: 'ジム'},
-        {code: 'BED', name: '就寝'}
-    ];
-    
+    const defaultAirports = [{code: 'HME', name: '自宅'}, {code: 'WRK', name: '仕事'}, {code: 'CFE', name: 'カフェ'}];
     let airports = JSON.parse(localStorage.getItem('my_airports') || JSON.stringify(defaultAirports));
-    let flights = JSON.parse(localStorage.getItem('ana_flights_v5') || '[]');
+    let flights = JSON.parse(localStorage.getItem('ana_flights_final') || '[]');
     let tempSeat = null;
 
-    // --- Airport Logic ---
-    function renderAirportList() {
-        const listUi = document.getElementById('airportListUi');
-        listUi.innerHTML = airports.map((ap, index) => `
-            <li class="airport-item">
-                <div style="display:flex; align-items:center;">
-                    <span class="airport-code-tag">${ap.code}</span>
-                    <span style="font-weight:bold;">${ap.name}</span>
-                </div>
-                <button class="delete-btn" onclick="deleteAirport(${index})">×</button>
-            </li>
-        `).join('');
+    // --- Status & Mile Logic ---
+    function getStatusInfo() {
+        const total = flights.reduce((acc, f) => getStatus(f) === 'ARRIVED' ? acc + (f.duration || 0) : acc, 0);
+        let status = 'BRONZE';
+        if (total >= 3000) status = 'DIAMOND';
+        else if (total >= 1000) status = 'SAPPHIRE';
+        return { total, status };
     }
 
-    function addAirport() {
-        const codeInput = document.getElementById('newAirportCode');
-        const nameInput = document.getElementById('newAirportName');
-        const code = codeInput.value.trim().toUpperCase();
-        const name = nameInput.value.trim();
-        if(!code || !name) return alert('入力してください');
-        if(code.length !== 3) return alert('コードは3文字で');
+    function updateHeader() {
+        const info = getStatusInfo();
+        document.getElementById('totalMiles').innerText = info.total.toLocaleString();
+        const label = document.getElementById('statusLabel');
+        label.innerText = info.status;
+        label.className = 'status-badge-header st-' + info.status;
 
-        airports.push({code, name});
-        localStorage.setItem('my_airports', JSON.stringify(airports));
-        codeInput.value = ''; nameInput.value = '';
-        renderAirportList();
+        // クラス制限の更新
+        document.getElementById('optPremium').disabled = info.total < 1000;
+        document.getElementById('optFirst').disabled = info.total < 3000;
     }
-
-    function deleteAirport(index) {
-        if(confirm('削除しますか？')) {
-            airports.splice(index, 1);
-            localStorage.setItem('my_airports', JSON.stringify(airports));
-            renderAirportList();
-        }
-    }
-
-    function updateSelectOptions() {
-        const fromSel = document.getElementById('fromSelect');
-        const toSel = document.getElementById('toSelect');
-        const options = airports.map(ap => `<option value="${ap.code}">${ap.code} - ${ap.name}</option>`).join('');
-        fromSel.innerHTML = options;
-        toSel.innerHTML = options;
-        if(airports.length > 1) toSel.selectedIndex = 1;
-    }
-
-    // --- Seat Map Logic ---
-    function initSeatMap() {
-        const grid = document.getElementById('seatGrid');
-        const planeWrapper = document.getElementById('planeWrapper');
-        grid.innerHTML = '';
-        const rows = 15;
-        planeWrapper.style.height = (rows * 36 + 120) + 'px';
-
-        for (let r = 1; r <= rows; r++) {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'seat-row';
-            ['A', 'B', 'C'].forEach(col => createSeat(rowDiv, r, col));
-            const aisle = document.createElement('div');
-            aisle.className = 'aisle-gap';
-            aisle.innerText = r;
-            rowDiv.appendChild(aisle);
-            ['H', 'J', 'K'].forEach(col => createSeat(rowDiv, r, col));
-            grid.appendChild(rowDiv);
-        }
-    }
-
-    function createSeat(container, row, col) {
-        const seatId = row + col;
-        const btn = document.createElement('div');
-        btn.className = 'seat';
-        if (tempSeat === seatId) btn.classList.add('selected');
-        btn.innerText = col;
-        btn.onclick = () => {
-            document.querySelectorAll('.seat').forEach(s => s.classList.remove('selected'));
-            btn.classList.add('selected');
-            tempSeat = seatId;
-        };
-        container.appendChild(btn);
-    }
-
-    // --- Modal Controls ---
-    function openNewFlightModal() {
-        tempSeat = null;
-        document.getElementById('seatLabel').innerText = '未指定';
-        document.getElementById('durationInput').value = 60; // default
-        updateSelectOptions();
-        document.getElementById('newFlightModal').style.display = 'block';
-    }
-    function openAirportModal() { renderAirportList(); document.getElementById('airportModal').style.display = 'block'; }
-    function openSeatMap() { initSeatMap(); document.getElementById('seatModal').style.display = 'block'; }
-    function confirmSeat() { if(tempSeat) document.getElementById('seatLabel').innerText = tempSeat; closeModal('seatModal'); }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     // --- Core Logic ---
-    function saveFlight() {
-        const fromCode = document.getElementById('fromSelect').value;
-        const toCode = document.getElementById('toSelect').value;
-        const fromAp = airports.find(a => a.code === fromCode);
-        const toAp = airports.find(a => a.code === toCode);
-        const duration = parseInt(document.getElementById('durationInput').value) || 60;
-
-        const f = {
-            id: Date.now(),
-            from: fromCode,
-            fromName: fromAp ? fromAp.name : '',
-            to: toCode,
-            toName: toAp ? toAp.name : '',
-            time: document.getElementById('timeInput').value,
-            duration: duration,
-            seat: tempSeat || 'ANY',
-            checkedIn: false
-        };
-        
-        if(!f.time) return alert('出発時刻を入力してください');
-        
-        flights.push(f);
-        localStorage.setItem('ana_flights_v5', JSON.stringify(flights));
-        closeModal('newFlightModal');
-        render();
-    }
-
     function getStatus(f) {
         const now = new Date();
         const [h, m] = f.time.split(':').map(Number);
         const dep = new Date(); dep.setHours(h, m, 0, 0);
-        // Duration is used here for arrival calc
         const arr = new Date(dep.getTime() + f.duration * 60000); 
 
         if (now > dep && !f.checkedIn) return 'NOSHOW';
         if (now > arr) return 'ARRIVED';
         if (now > dep && f.checkedIn) return 'INFLIGHT';
-        if (f.checkedIn) return 'CHECKEDIN';
-        return 'RESERVED';
+        return f.checkedIn ? 'CHECKEDIN' : 'RESERVED';
     }
 
-    function doCheckIn(id) {
-        flights = flights.map(f => f.id === id ? {...f, checkedIn: true} : f);
-        localStorage.setItem('ana_flights_v5', JSON.stringify(flights));
-        render();
+    function isCheckInOpen(f) {
+        const now = new Date();
+        const [h, m] = f.time.split(':').map(Number);
+        const dep = new Date(); dep.setHours(h, m, 0, 0);
+        const openTime = new Date(dep.getTime() - 10 * 60000); // 10分前
+        return now >= openTime && now <= dep;
     }
 
     function render() {
+        updateHeader();
         const list = document.getElementById('flightList');
         if(flights.length === 0) {
             list.innerHTML = '<div style="text-align:center; color:#999; margin-top:50px">予約がありません</div>';
@@ -398,9 +279,9 @@
 
         list.innerHTML = flights.map(f => {
             const status = getStatus(f);
+            const canCheckIn = isCheckInOpen(f);
             const isNoShow = status === 'NOSHOW';
             
-            // Calculate Arrival Time for display
             const [h, m] = f.time.split(':').map(Number);
             const depDate = new Date(); depDate.setHours(h, m, 0, 0);
             const arrDate = new Date(depDate.getTime() + f.duration * 60000);
@@ -414,40 +295,29 @@
                             <span class="status-badge badge-${status.toLowerCase()}">${status}</span>
                             <span style="font-size:0.8rem; color:#999">#${String(f.id).slice(-4)}</span>
                         </div>
-                        
                         <div class="route-row">
-                            <div class="city-box">
-                                <div class="city-code">${f.from}</div>
-                                <div class="city-name">${f.fromName}</div>
-                            </div>
-                            <div style="color:var(--ana-blue-sky); font-size:1.5rem;">✈</div>
-                            <div class="city-box">
-                                <div class="city-code">${f.to}</div>
-                                <div class="city-name">${f.toName}</div>
-                            </div>
+                            <div class="city-box"><div class="city-code">${f.from}</div><div class="city-name">${f.fromName}</div></div>
+                            <div style="color:var(--ana-blue-sky)">✈</div>
+                            <div class="city-box"><div class="city-code">${f.to}</div><div class="city-name">${f.toName}</div></div>
                         </div>
-
                         <div class="time-row">
-                            <div class="time-box">
-                                <div class="time-label">DEP</div>
-                                <div class="time-value">${f.time}</div>
-                            </div>
-                            <div class="duration-center">
-                                ⎯ ${f.duration}min ⎯
-                            </div>
-                            <div class="time-box">
-                                <div class="time-label">ARR</div>
-                                <div class="time-value">${arrTimeStr}</div>
-                            </div>
+                            <div class="time-box"><div class="time-label">DEP</div><div class="time-value">${f.time}</div></div>
+                            <div class="duration-center">⎯ ${f.duration}min ⎯</div>
+                            <div class="time-box"><div class="time-label">ARR</div><div class="time-value">${arrTimeStr}</div></div>
                         </div>
-                        
-                        ${(!f.checkedIn && !isNoShow) ? `<button class="btn btn-checkin" onclick="doCheckIn(${f.id})">オンラインチェックイン</button>` : ''}
+                        ${status === 'ARRIVED' ? `<div class="mile-tag">+${f.duration} MILES</div>` : ''}
+                        ${(status === 'RESERVED') ? `
+                            <button class="btn btn-checkin ${!canCheckIn ? 'btn-disabled' : ''}" 
+                                    onclick="${canCheckIn ? `doCheckIn(${f.id})` : ''}">
+                                ${canCheckIn ? 'オンラインチェックイン' : 'チェックイン開始までお待ちください'}
+                            </button>
+                        ` : ''}
                     </div>
-                    ${(f.checkedIn && !isNoShow && status !== 'ARRIVED') ? `
+                    ${(f.checkedIn && status !== 'ARRIVED' && !isNoShow) ? `
                         <div class="boarding-pass">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <div><div style="font-size:0.7rem; color:#666">SEAT</div><div style="font-size:1.5rem; font-weight:bold; color:var(--ana-blue-main)">${f.seat}</div></div>
-                                <div><div style="font-size:0.7rem; color:#666">GATE</div><div style="font-size:1.2rem; font-weight:bold;">60</div></div>
+                                <div><div style="font-size:0.7rem; color:#666">CLASS</div><div style="font-size:1rem; font-weight:bold;">${f.boardingClass || 'ECONOMY'}</div></div>
                                 <div style="text-align:right"><div style="font-size:0.7rem; color:#666">GROUP</div><div style="font-size:1.2rem; font-weight:bold;">3</div></div>
                             </div>
                         </div>
@@ -457,8 +327,129 @@
         }).join('');
     }
 
+    // --- Interaction Logic (Restored) ---
+    function saveFlight() {
+        const fromCode = document.getElementById('fromSelect').value;
+        const toCode = document.getElementById('toSelect').value;
+        const fromAp = airports.find(a => a.code === fromCode);
+        const toAp = airports.find(a => a.code === toCode);
+        const f = {
+            id: Date.now(),
+            from: fromCode, fromName: fromAp ? fromAp.name : '',
+            to: toCode, toName: toAp ? toAp.name : '',
+            time: document.getElementById('timeInput').value,
+            duration: parseInt(document.getElementById('durationInput').value) || 60,
+            seat: tempSeat || 'ANY',
+            boardingClass: document.getElementById('classSelect').value,
+            checkedIn: false
+        };
+        if(!f.time) return alert('出発時刻を入力してください');
+        flights.push(f);
+        localStorage.setItem('ana_flights_final', JSON.stringify(flights));
+        closeModal('newFlightModal');
+        render();
+    }
+
+    function doCheckIn(id) {
+        flights = flights.map(f => f.id === id ? {...f, checkedIn: true} : f);
+        localStorage.setItem('ana_flights_final', JSON.stringify(flights));
+        render();
+    }
+
+    // Modal/UI Helpers
+    function openNewFlightModal() { tempSeat = null; document.getElementById('seatLabel').innerText = '未指定'; updateHeader(); updateSelectOptions(); document.getElementById('newFlightModal').style.display = 'block'; }
+    function openAirportModal() { renderAirportList(); document.getElementById('airportModal').style.display = 'block'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function openSeatMap() { initSeatMap(); document.getElementById('seatModal').style.display = 'block'; }
+    function confirmSeat() { if(tempSeat) document.getElementById('seatLabel').innerText = tempSeat; closeModal('seatModal'); }
+    function updateSelectOptions() {
+        const html = airports.map(a => `<option value="${a.code}">${a.code} - ${a.name}</option>`).join('');
+        document.getElementById('fromSelect').innerHTML = html;
+        document.getElementById('toSelect').innerHTML = html;
+        if(airports.length > 1) document.getElementById('toSelect').selectedIndex = 1;
+    }
+    function renderAirportList() {
+        document.getElementById('airportListUi').innerHTML = airports.map((a, i) => `<li class="airport-item"><span class="airport-code-tag">${a.code}</span><strong>${a.name}</strong><button class="delete-btn" onclick="deleteAirport(${i})">×</button></li>`).join('');
+    }
+    function addAirport() {
+        const c = document.getElementById('newAirportCode').value.toUpperCase();
+        const n = document.getElementById('newAirportName').value;
+        if(c && n) { airports.push({code:c, name:n}); localStorage.setItem('my_airports', JSON.stringify(airports)); renderAirportList(); }
+    }
+    function deleteAirport(i) { airports.splice(i, 1); localStorage.setItem('my_airports', JSON.stringify(airports)); renderAirportList(); }
+    function initSeatMap() {
+        const grid = document.getElementById('seatGrid'); grid.innerHTML = '';
+        for (let r = 1; r <= 15; r++) {
+            const row = document.createElement('div'); row.className = 'seat-row';
+            ['A','B','C'].forEach(c => createSeat(row, r, c));
+            const aisle = document.createElement('div'); aisle.className='aisle-gap'; aisle.innerText=r; row.appendChild(aisle);
+            ['H','J','K'].forEach(c => createSeat(row, r, c));
+            grid.appendChild(row);
+        }
+    }
+    function createSeat(container, r, c) {
+        const s = document.createElement('div'); s.className = 'seat'; s.innerText = c;
+        s.onclick = () => { document.querySelectorAll('.seat').forEach(x=>x.classList.remove('selected')); s.classList.add('selected'); tempSeat = r+c; };
+        container.appendChild(s);
+    }
+
     render();
-    setInterval(render, 30000);
+    setInterval(render, 15000);
+
+    function initSeatMap() {
+        const grid = document.getElementById('seatGrid'); 
+        grid.innerHTML = '';
+        const selectedClass = document.getElementById('classSelect').value;
+
+        for (let r = 1; r <= 20; r++) {
+            // 列ごとのクラス判定
+            let rowClass = 'ECONOMY';
+            if (r <= 2) rowClass = 'FIRST';
+            else if (r <= 7) rowClass = 'BUSINESS';
+
+            const isLocked = (rowClass !== selectedClass);
+
+            const row = document.createElement('div'); 
+            row.className = 'seat-row';
+            if (isLocked) row.style.opacity = "0.3"; // 選択不可の列を薄くする
+
+            // 左側座席
+            ['A','B','C'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
+            
+            // 通路
+            const aisle = document.createElement('div'); 
+            aisle.className='aisle-gap'; 
+            aisle.innerText = r; 
+            row.appendChild(aisle);
+            
+            // 右側座席
+            ['H','J','K'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
+            
+            grid.appendChild(row);
+        }
+    }
+
+    function createSeat(container, r, c, isLocked, rowClass) {
+        const s = document.createElement('div'); 
+        s.className = 'seat'; 
+        s.innerText = c;
+        
+        // クラスに応じた色分け（視認性向上）
+        if (rowClass === 'FIRST') s.style.borderColor = "var(--diamond)";
+        if (rowClass === 'BUSINESS') s.style.borderColor = "var(--ana-blue-sky)";
+
+        if (isLocked) {
+            s.style.cursor = 'not-allowed';
+            s.style.background = '#ddd';
+        } else {
+            s.onclick = () => { 
+                document.querySelectorAll('.seat').forEach(x => x.classList.remove('selected')); 
+                s.classList.add('selected'); 
+                tempSeat = r + c; 
+            };
+        }
+        container.appendChild(s);
+    }
 </script>
 
 </body>
