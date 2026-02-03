@@ -1,17 +1,13 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<title>My Schedule</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<title>MY SCHEDULE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-/* ===== Reset ===== */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-/* ===== Base ===== */
 body {
   margin: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont;
@@ -21,14 +17,12 @@ body {
 
 header {
   background: #003b8e;
-  color: white;
+  color: #fff;
   padding: 18px;
   text-align: center;
   font-weight: 600;
-  letter-spacing: .5px;
 }
 
-/* ===== Layout ===== */
 main {
   padding: 16px;
   max-width: 420px;
@@ -37,8 +31,8 @@ main {
 
 /* ===== Flight Card ===== */
 .flight {
-  background: white;
-  border-radius: 12px;
+  background: #fff;
+  border-radius: 14px;
   padding: 16px;
   margin-bottom: 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,.05);
@@ -67,7 +61,7 @@ main {
 .inflight { background: #e6f4ea; color: #1e6b3a; }
 .landed { background: #ececec; color: #555; }
 
-/* ===== Time Row ===== */
+/* ===== Time ===== */
 .time-row {
   display: flex;
   justify-content: space-between;
@@ -76,8 +70,8 @@ main {
 }
 
 .time-block {
-  text-align: center;
   flex: 1;
+  text-align: center;
 }
 
 .time {
@@ -91,21 +85,56 @@ main {
 }
 
 .arrow {
-  flex: 0 0 40px;
+  width: 40px;
   text-align: center;
   font-size: 18px;
   color: #003b8e;
 }
 
-/* ===== Footer ===== */
-.sub {
-  margin-top: 10px;
-  font-size: 12px;
-  color: #666;
+/* ===== Progress ===== */
+.progress {
+  margin-top: 12px;
+  height: 6px;
+  background: #e6eaf2;
+  border-radius: 999px;
+  overflow: hidden;
 }
 
-/* ===== Button ===== */
-button {
+.progress-bar {
+  height: 100%;
+  background: #003b8e;
+  width: 0%;
+  transition: width .4s ease;
+}
+
+/* ===== Action ===== */
+.action {
+  margin-top: 12px;
+}
+
+.action button {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: none;
+  background: #003b8e;
+  color: #fff;
+  font-weight: 600;
+}
+
+.checked {
+  margin-top: 12px;
+  background: #e6f4ea;
+  color: #1e6b3a;
+  text-align: center;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+/* ===== Add Button ===== */
+.add {
   width: calc(100% - 32px);
   margin: 20px auto;
   display: block;
@@ -114,7 +143,7 @@ button {
   border: none;
   font-size: 15px;
   background: #003b8e;
-  color: white;
+  color: #fff;
   font-weight: 600;
 }
 
@@ -124,16 +153,13 @@ button {
   inset: 0;
   background: rgba(0,0,0,.3);
   display: flex;
-  justify-content: center;
   align-items: flex-end;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 .sheet {
-  background: white;
+  background: #fff;
   width: 100%;
   max-width: 420px;
   border-radius: 16px 16px 0 0;
@@ -142,7 +168,6 @@ button {
 
 .sheet h2 {
   margin: 0 0 12px;
-  font-size: 18px;
   color: #003b8e;
 }
 
@@ -162,16 +187,13 @@ input {
   border: 1px solid #ccc;
 }
 
-/* 出発地 → 到着地 */
 .route {
   display: flex;
   align-items: flex-end;
   gap: 8px;
 }
 
-.route label {
-  flex: 1;
-}
+.route label { flex: 1; }
 
 .route-arrow {
   padding-bottom: 14px;
@@ -192,9 +214,9 @@ input {
 <header>MY SCHEDULE</header>
 
 <main id="list"></main>
-<button onclick="openModal()">＋ 予定を追加</button>
+<button class="add" onclick="openModal()">＋ 予定を追加</button>
 
-<!-- ===== Reservation Modal ===== -->
+<!-- ===== Modal ===== -->
 <div id="modal" class="modal hidden">
   <div class="sheet">
     <h2>フライトを予約</h2>
@@ -202,14 +224,12 @@ input {
     <div class="route">
       <label>
         出発地
-        <input id="fromInput" placeholder="例：自宅">
+        <input id="fromInput">
       </label>
-
       <div class="route-arrow">→</div>
-
       <label>
         到着地
-        <input id="toInput" placeholder="例：英語の勉強">
+        <input id="toInput">
       </label>
     </div>
 
@@ -220,7 +240,7 @@ input {
 
     <label>
       所要時間（分）
-      <input id="durationInput" type="number" placeholder="60">
+      <input id="durationInput" type="number">
     </label>
 
     <button onclick="submitFlight()">予約する</button>
@@ -229,18 +249,13 @@ input {
 </div>
 
 <script>
-/* ===== Data ===== */
 const flights = JSON.parse(localStorage.getItem("flights") || "[]");
 
 /* ===== Modal ===== */
-function openModal() {
-  modal.classList.remove("hidden");
-}
-function closeModal() {
-  modal.classList.add("hidden");
-}
+function openModal(){ modal.classList.remove("hidden"); }
+function closeModal(){ modal.classList.add("hidden"); }
 
-/* ===== Submit ===== */
+/* ===== Add ===== */
 function submitFlight() {
   if (!fromInput.value || !toInput.value || !timeInput.value || !durationInput.value) return;
 
@@ -249,7 +264,8 @@ function submitFlight() {
     from: fromInput.value,
     to: toInput.value,
     time: timeInput.value,
-    duration: Number(durationInput.value)
+    duration: Number(durationInput.value),
+    checkedIn: false
   });
 
   closeModal();
@@ -257,24 +273,30 @@ function submitFlight() {
   render();
 }
 
-/* ===== Status Logic ===== */
-function getStatus(f) {
+/* ===== State ===== */
+function getState(f, dep, arr) {
   const now = new Date();
-  const [h, m] = f.time.split(":");
-  const dep = new Date();
-  dep.setHours(h, m, 0);
-  const arr = new Date(dep.getTime() + f.duration * 60000);
-  const diff = (dep - now) / 60000;
+  const min = (dep - now) / 60000;
 
-  if (now > arr) return ["到着", "landed"];
-  if (now >= dep) return ["実行中", "inflight"];
-  if (diff <= 10) return ["搭乗中", "boarding"];
-  if (diff <= 30) return ["チェックイン", ""];
-  return ["予約済", ""];
+  if (now > arr) return "arrived";
+  if (now >= dep) return "inflight";
+  if (min <= 10) return "boarding";
+  if (min <= 30) return f.checkedIn ? "checked" : "checkin";
+  return "reserved";
 }
 
-function fmt(d) {
-  return d.toTimeString().slice(0,5);
+function progress(dep, arr) {
+  const now = new Date();
+  return Math.min(100, Math.max(0, ((now - dep) / (arr - dep)) * 100));
+}
+
+/* ===== Actions ===== */
+function checkIn(id) {
+  const f = flights.find(x => x.id === id);
+  if (!f) return;
+  f.checkedIn = true;
+  save();
+  render();
 }
 
 /* ===== Render ===== */
@@ -282,35 +304,67 @@ function render() {
   list.innerHTML = "";
 
   flights.forEach(f => {
-    const [label, cls] = getStatus(f);
-
     const [h, m] = f.time.split(":");
-    const dep = new Date();
-    dep.setHours(h, m, 0);
+    const dep = new Date(); dep.setHours(h, m, 0);
     const arr = new Date(dep.getTime() + f.duration * 60000);
+
+    const state = getState(f, dep, arr);
+
+    const labels = {
+      reserved: "予約済",
+      checkin: "チェックイン可",
+      checked: "チェックイン済",
+      boarding: "搭乗中",
+      inflight: "実行中",
+      arrived: "到着"
+    };
+
+    const cls = {
+      boarding: "boarding",
+      inflight: "inflight",
+      arrived: "landed"
+    }[state] || "";
+
+    let action = "";
+    let prog = "";
+
+    if (state === "checkin") {
+      action = `<div class="action">
+        <button onclick="checkIn(${f.id})">チェックイン</button>
+      </div>`;
+    }
+
+    if (state === "checked") {
+      action = `<div class="checked">✔ チェックイン済</div>`;
+    }
+
+    if (state === "inflight") {
+      prog = `<div class="progress">
+        <div class="progress-bar" style="width:${progress(dep,arr)}%"></div>
+      </div>`;
+    }
 
     list.innerHTML += `
       <div class="flight">
         <div class="flight-header">
           <div class="title">${f.from} → ${f.to}</div>
-          <div class="status ${cls}">${label}</div>
+          <div class="status ${cls}">${labels[state]}</div>
         </div>
 
         <div class="time-row">
           <div class="time-block">
-            <div class="time">${fmt(dep)}</div>
+            <div class="time">${f.time}</div>
             <div class="label">出発</div>
           </div>
-
           <div class="arrow">→</div>
-
           <div class="time-block">
-            <div class="time">${fmt(arr)}</div>
+            <div class="time">${arr.toTimeString().slice(0,5)}</div>
             <div class="label">到着</div>
           </div>
         </div>
 
-        <div class="sub">所要時間 ${f.duration}分</div>
+        ${prog}
+        ${action}
       </div>
     `;
   });
