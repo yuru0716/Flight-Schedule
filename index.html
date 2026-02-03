@@ -6,6 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
+/* ===== Reset ===== */
+* {
+  box-sizing: border-box;
+}
+
 /* ===== Base ===== */
 body {
   margin: 0;
@@ -123,7 +128,9 @@ button {
   align-items: flex-end;
 }
 
-.hidden { display: none; }
+.hidden {
+  display: none;
+}
 
 .sheet {
   background: white;
@@ -155,6 +162,23 @@ input {
   border: 1px solid #ccc;
 }
 
+/* 出発地 → 到着地 */
+.route {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.route label {
+  flex: 1;
+}
+
+.route-arrow {
+  padding-bottom: 14px;
+  font-size: 18px;
+  color: #003b8e;
+}
+
 .secondary {
   background: #eee;
   color: #333;
@@ -170,15 +194,24 @@ input {
 <main id="list"></main>
 <button onclick="openModal()">＋ 予定を追加</button>
 
-<!-- Modal -->
+<!-- ===== Reservation Modal ===== -->
 <div id="modal" class="modal hidden">
   <div class="sheet">
     <h2>フライトを予約</h2>
 
-    <label>
-      行き先（予定名）
-      <input id="titleInput" placeholder="例：英語の勉強">
-    </label>
+    <div class="route">
+      <label>
+        出発地
+        <input id="fromInput" placeholder="例：自宅">
+      </label>
+
+      <div class="route-arrow">→</div>
+
+      <label>
+        到着地
+        <input id="toInput" placeholder="例：英語の勉強">
+      </label>
+    </div>
 
     <label>
       出発時刻
@@ -196,8 +229,10 @@ input {
 </div>
 
 <script>
+/* ===== Data ===== */
 const flights = JSON.parse(localStorage.getItem("flights") || "[]");
 
+/* ===== Modal ===== */
 function openModal() {
   modal.classList.remove("hidden");
 }
@@ -205,19 +240,24 @@ function closeModal() {
   modal.classList.add("hidden");
 }
 
+/* ===== Submit ===== */
 function submitFlight() {
-  if (!titleInput.value || !timeInput.value || !durationInput.value) return;
+  if (!fromInput.value || !toInput.value || !timeInput.value || !durationInput.value) return;
+
   flights.push({
     id: Date.now(),
-    title: titleInput.value,
+    from: fromInput.value,
+    to: toInput.value,
     time: timeInput.value,
     duration: Number(durationInput.value)
   });
+
   closeModal();
   save();
   render();
 }
 
+/* ===== Status Logic ===== */
 function getStatus(f) {
   const now = new Date();
   const [h, m] = f.time.split(":");
@@ -237,8 +277,10 @@ function fmt(d) {
   return d.toTimeString().slice(0,5);
 }
 
+/* ===== Render ===== */
 function render() {
   list.innerHTML = "";
+
   flights.forEach(f => {
     const [label, cls] = getStatus(f);
 
@@ -250,7 +292,7 @@ function render() {
     list.innerHTML += `
       <div class="flight">
         <div class="flight-header">
-          <div class="title">${f.title}</div>
+          <div class="title">${f.from} → ${f.to}</div>
           <div class="status ${cls}">${label}</div>
         </div>
 
@@ -272,6 +314,7 @@ function render() {
       </div>
     `;
   });
+
   save();
 }
 
