@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>MY SCHEDULE</title>
+<title>My Schedule</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -10,7 +10,7 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont;
+  font-family: system-ui, -apple-system;
   background: #f7f9fc;
   color: #111;
 }
@@ -18,24 +18,23 @@ body {
 header {
   background: #003b8e;
   color: #fff;
-  padding: 18px;
   text-align: center;
+  padding: 18px;
   font-weight: 600;
 }
 
 main {
-  padding: 16px;
   max-width: 420px;
   margin: auto;
+  padding: 16px;
 }
 
-/* ===== Flight Card ===== */
 .flight {
   background: #fff;
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
 }
 
 .flight-header {
@@ -57,11 +56,10 @@ main {
   color: #003b8e;
 }
 
-.boarding { background: #fff4da; color: #8a5a00; }
-.inflight { background: #e6f4ea; color: #1e6b3a; }
-.landed { background: #ececec; color: #555; }
+.boarding { background:#fff4da;color:#8a5a00 }
+.inflight { background:#e6f4ea;color:#1e6b3a }
+.arrived { background:#eee;color:#555 }
 
-/* ===== Time ===== */
 .time-row {
   display: flex;
   justify-content: space-between;
@@ -70,8 +68,8 @@ main {
 }
 
 .time-block {
-  flex: 1;
   text-align: center;
+  flex: 1;
 }
 
 .time {
@@ -85,13 +83,19 @@ main {
 }
 
 .arrow {
-  width: 40px;
+  flex: 0 0 40px;
   text-align: center;
   font-size: 18px;
   color: #003b8e;
 }
 
-/* ===== Progress ===== */
+.sub {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* progress */
 .progress {
   margin-top: 12px;
   height: 6px;
@@ -103,11 +107,10 @@ main {
 .progress-bar {
   height: 100%;
   background: #003b8e;
-  width: 0%;
   transition: width .4s ease;
 }
 
-/* ===== Action ===== */
+/* action */
 .action {
   margin-top: 12px;
 }
@@ -127,14 +130,14 @@ main {
   margin-top: 12px;
   background: #e6f4ea;
   color: #1e6b3a;
-  text-align: center;
   padding: 10px;
   border-radius: 10px;
   font-size: 13px;
+  text-align: center;
 }
 
-/* ===== Add Button ===== */
-.add {
+/* add button */
+button.add {
   width: calc(100% - 32px);
   margin: 20px auto;
   display: block;
@@ -143,16 +146,17 @@ main {
   border: none;
   font-size: 15px;
   background: #003b8e;
-  color: #fff;
+  color: white;
   font-weight: 600;
 }
 
-/* ===== Modal ===== */
+/* modal */
 .modal {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.3);
   display: flex;
+  justify-content: center;
   align-items: flex-end;
 }
 
@@ -162,8 +166,8 @@ main {
   background: #fff;
   width: 100%;
   max-width: 420px;
-  border-radius: 16px 16px 0 0;
   padding: 20px;
+  border-radius: 16px 16px 0 0;
 }
 
 .sheet h2 {
@@ -212,35 +216,29 @@ input {
 <body>
 
 <header>MY SCHEDULE</header>
-
 <main id="list"></main>
 <button class="add" onclick="openModal()">＋ 予定を追加</button>
 
-<!-- ===== Modal ===== -->
 <div id="modal" class="modal hidden">
   <div class="sheet">
     <h2>フライトを予約</h2>
 
     <div class="route">
-      <label>
-        出発地
-        <input id="fromInput">
+      <label>出発地
+        <input id="fromInput" placeholder="例：自宅">
       </label>
       <div class="route-arrow">→</div>
-      <label>
-        到着地
-        <input id="toInput">
+      <label>到着地
+        <input id="toInput" placeholder="例：勉強">
       </label>
     </div>
 
-    <label>
-      出発時刻
+    <label>出発時刻
       <input id="timeInput" type="time">
     </label>
 
-    <label>
-      所要時間（分）
-      <input id="durationInput" type="number">
+    <label>所要時間（分）
+      <input id="durationInput" type="number" placeholder="60">
     </label>
 
     <button onclick="submitFlight()">予約する</button>
@@ -251,14 +249,11 @@ input {
 <script>
 const flights = JSON.parse(localStorage.getItem("flights") || "[]");
 
-/* ===== Modal ===== */
 function openModal(){ modal.classList.remove("hidden"); }
 function closeModal(){ modal.classList.add("hidden"); }
 
-/* ===== Add ===== */
 function submitFlight() {
-  if (!fromInput.value || !toInput.value || !timeInput.value || !durationInput.value) return;
-
+  if(!fromInput.value||!toInput.value||!timeInput.value||!durationInput.value) return;
   flights.push({
     id: Date.now(),
     from: fromInput.value,
@@ -267,93 +262,73 @@ function submitFlight() {
     duration: Number(durationInput.value),
     checkedIn: false
   });
-
   closeModal();
-  save();
-  render();
+  save(); render();
 }
 
-/* ===== State ===== */
-function getState(f, dep, arr) {
+function getState(f){
   const now = new Date();
-  const min = (dep - now) / 60000;
+  const [h,m]=f.time.split(":");
+  const dep=new Date(); dep.setHours(h,m,0);
+  const arr=new Date(dep.getTime()+f.duration*60000);
+  const min=(dep-now)/60000;
 
-  if (now > arr) return "arrived";
-  if (now >= dep) return "inflight";
-  if (min <= 10) return "boarding";
-  if (min <= 30) return f.checkedIn ? "checked" : "checkin";
+  if(now>arr) return "arrived";
+  if(now>=dep) return "inflight";
+  if(min<=10) return "boarding";
+  if(min<=30) return f.checkedIn?"checked":"checkin";
   return "reserved";
 }
 
-function progress(dep, arr) {
-  const now = new Date();
-  return Math.min(100, Math.max(0, ((now - dep) / (arr - dep)) * 100));
+function progress(dep,arr){
+  return Math.min(100,Math.max(0,(Date.now()-dep)/(arr-dep)*100));
 }
 
-/* ===== Actions ===== */
-function checkIn(id) {
-  const f = flights.find(x => x.id === id);
-  if (!f) return;
-  f.checkedIn = true;
-  save();
-  render();
+function checkIn(id){
+  const f=flights.find(x=>x.id===id);
+  if(!f) return;
+  f.checkedIn=true;
+  save(); render();
 }
 
-/* ===== Render ===== */
-function render() {
-  list.innerHTML = "";
+function render(){
+  list.innerHTML="";
+  flights.forEach(f=>{
+    const [h,m]=f.time.split(":");
+    const dep=new Date(); dep.setHours(h,m,0);
+    const arr=new Date(dep.getTime()+f.duration*60000);
+    const state=getState(f);
 
-  flights.forEach(f => {
-    const [h, m] = f.time.split(":");
-    const dep = new Date(); dep.setHours(h, m, 0);
-    const arr = new Date(dep.getTime() + f.duration * 60000);
-
-    const state = getState(f, dep, arr);
-
-    const labels = {
-      reserved: "予約済",
-      checkin: "チェックイン可",
-      checked: "チェックイン済",
-      boarding: "搭乗中",
-      inflight: "実行中",
-      arrived: "到着"
+    const labels={
+      reserved:"予約済",
+      checkin:"チェックイン可",
+      checked:"チェックイン済",
+      boarding:"搭乗中",
+      inflight:"実行中",
+      arrived:"到着"
     };
 
-    const cls = {
-      boarding: "boarding",
-      inflight: "inflight",
-      arrived: "landed"
-    }[state] || "";
-
-    let action = "";
-    let prog = "";
-
-    if (state === "checkin") {
-      action = `<div class="action">
-        <button onclick="checkIn(${f.id})">チェックイン</button>
-      </div>`;
+    let action="", prog="";
+    if(state==="checkin"){
+      action=`<div class="action"><button onclick="checkIn(${f.id})">チェックイン</button></div>`;
+    }
+    if(state==="checked"){
+      action=`<div class="checked">✔ チェックイン済</div>`;
+    }
+    if(state==="inflight"){
+      prog=`<div class="progress"><div class="progress-bar" style="width:${progress(dep,arr)}%"></div></div>`;
     }
 
-    if (state === "checked") {
-      action = `<div class="checked">✔ チェックイン済</div>`;
-    }
-
-    if (state === "inflight") {
-      prog = `<div class="progress">
-        <div class="progress-bar" style="width:${progress(dep,arr)}%"></div>
-      </div>`;
-    }
-
-    list.innerHTML += `
+    list.innerHTML+=`
       <div class="flight">
         <div class="flight-header">
           <div class="title">${f.from} → ${f.to}</div>
-          <div class="status ${cls}">${labels[state]}</div>
+          <div class="status ${state}">${labels[state]}</div>
         </div>
 
         <div class="time-row">
           <div class="time-block">
-            <div class="time">${f.time}</div>
+            <div class="time">${dep.toTimeString().slice(0,5)}</div>
             <div class="label">出発</div>
           </div>
           <div class="arrow">→</div>
@@ -363,20 +338,19 @@ function render() {
           </div>
         </div>
 
+        <div class="sub">所要時間 ${f.duration}分</div>
         ${prog}
         ${action}
-      </div>
-    `;
+      </div>`;
   });
-
   save();
 }
 
-function save() {
-  localStorage.setItem("flights", JSON.stringify(flights));
+function save(){
+  localStorage.setItem("flights",JSON.stringify(flights));
 }
 
-setInterval(render, 10000);
+setInterval(render,10000);
 render();
 </script>
 
