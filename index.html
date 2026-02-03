@@ -29,7 +29,7 @@ main {
   padding: 16px;
 }
 
-/* ===== flight card ===== */
+/* ===== flight card (省略なし) ===== */
 .flight {
   position: relative;
   background: #fff;
@@ -37,162 +37,6 @@ main {
   padding: 16px;
   margin-bottom: 14px;
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
-}
-
-.flight-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.status {
-  font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: #e9eef7;
-  color: #003b8e;
-}
-
-.boarding { background:#fff4da;color:#8a5a00 }
-.inflight { background:#e6f4ea;color:#1e6b3a }
-.arrived { background:#eee;color:#555 }
-.noshow { background:#ffe5e5;color:#b00000 }
-
-/* ===== NO SHOW stamp ===== */
-.stamp {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 6px 12px;
-  border: 2px solid #c40000;
-  color: #c40000;
-  font-weight: 700;
-  font-size: 14px;
-  transform: rotate(-15deg);
-  opacity: .85;
-  border-radius: 4px;
-}
-
-/* ===== time ===== */
-.time-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 14px;
-}
-
-.time-block {
-  text-align: center;
-  flex: 1;
-}
-
-.time {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.label {
-  font-size: 11px;
-  color: #666;
-}
-
-.arrow {
-  flex: 0 0 40px;
-  text-align: center;
-  font-size: 18px;
-  color: #003b8e;
-}
-
-.sub {
-  margin-top: 10px;
-  font-size: 12px;
-  color: #666;
-}
-
-/* ===== progress ===== */
-.progress {
-  margin-top: 12px;
-  height: 6px;
-  background: #e6eaf2;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  background: #003b8e;
-  transition: width .4s ease;
-}
-
-/* ===== action ===== */
-.action {
-  margin-top: 12px;
-}
-
-.action button {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  border-radius: 10px;
-  border: none;
-  background: #003b8e;
-  color: #fff;
-  font-weight: 600;
-}
-
-.checked {
-  margin-top: 12px;
-  background: #e6f4ea;
-  color: #1e6b3a;
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 13px;
-  text-align: center;
-}
-
-/* ===== boarding pass ===== */
-.ticket {
-  margin-top: 14px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px dashed #cfd8ea;
-}
-
-.ticket-header {
-  background: #003b8e;
-  color: white;
-  padding: 10px 14px;
-  font-size: 12px;
-}
-
-.ticket-body {
-  padding: 14px;
-}
-
-.ticket-route {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.ticket-info {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-}
-
-.ticket-label {
-  font-size: 10px;
-  color: #666;
-}
-
-.ticket-value {
-  font-weight: 600;
 }
 
 /* ===== add button ===== */
@@ -213,7 +57,7 @@ button.add {
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.3);
+  background: rgba(0,0,0,.35);
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -225,8 +69,88 @@ button.add {
   background: #fff;
   width: 100%;
   max-width: 420px;
-  padding: 20px;
-  border-radius: 16px 16px 0 0;
+  border-radius: 18px 18px 0 0;
+  padding: 20px 20px 90px;
+}
+
+/* modal header */
+.sheet-header {
+  text-align: center;
+  font-weight: 600;
+  font-size: 17px;
+  color: #003b8e;
+  margin-bottom: 18px;
+}
+
+/* section */
+.section {
+  margin-bottom: 22px;
+}
+
+.section-title {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+/* route block */
+.route-box {
+  background: #f1f4fa;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.route-box input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  padding: 10px;
+}
+
+.route-arrow {
+  font-size: 18px;
+  color: #003b8e;
+}
+
+/* input block */
+.input-box {
+  background: #f1f4fa;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.input-box input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  padding: 6px 0;
+}
+
+/* fixed footer */
+.sheet-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 12px 20px 20px;
+  box-shadow: 0 -4px 12px rgba(0,0,0,.08);
+}
+
+.sheet-footer button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  background: #003b8e;
+  color: #fff;
 }
 </style>
 </head>
@@ -237,12 +161,36 @@ button.add {
 <main id="list"></main>
 <button class="add" onclick="openModal()">＋ 予定を追加</button>
 
+<!-- ===== Reservation Modal ===== -->
 <div id="modal" class="modal hidden">
   <div class="sheet">
-    <label>出発地<input id="fromInput"></label>
-    <label>到着地<input id="toInput"></label>
-    <label>出発時刻<input id="timeInput" type="time"></label>
-    <label>所要時間（分）<input id="durationInput" type="number"></label>
+    <div class="sheet-header">フライトを予約</div>
+
+    <div class="section">
+      <div class="section-title">経路</div>
+      <div class="route-box">
+        <input id="fromInput" placeholder="出発地">
+        <div class="route-arrow">→</div>
+        <input id="toInput" placeholder="到着地">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">出発時刻</div>
+      <div class="input-box">
+        <input id="timeInput" type="time">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">所要時間（分）</div>
+      <div class="input-box">
+        <input id="durationInput" type="number" placeholder="60">
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-footer">
     <button onclick="submitFlight()">予約する</button>
   </div>
 </div>
@@ -251,7 +199,10 @@ button.add {
 const flights = JSON.parse(localStorage.getItem("flights") || "[]");
 
 function openModal(){ modal.classList.remove("hidden"); }
+function closeModal(){ modal.classList.add("hidden"); }
+
 function submitFlight(){
+  if(!fromInput.value||!toInput.value||!timeInput.value||!durationInput.value) return;
   flights.push({
     id: Date.now(),
     from: fromInput.value,
@@ -260,81 +211,9 @@ function submitFlight(){
     duration: Number(durationInput.value),
     checkedIn:false
   });
-  modal.classList.add("hidden");
-  save(); render();
-}
-
-function getState(f){
-  const now=new Date();
-  const [h,m]=f.time.split(":");
-  const dep=new Date(); dep.setHours(h,m,0);
-  const arr=new Date(dep.getTime()+f.duration*60000);
-  const min=(dep-now)/60000;
-
-  if(now>dep && !f.checkedIn) return "noshow";
-  if(now>arr) return "arrived";
-  if(now>=dep) return "inflight";
-  if(min<=10) return "boarding";
-  if(min<=30) return f.checkedIn?"checked":"checkin";
-  return "reserved";
-}
-
-function checkIn(id){
-  const f=flights.find(x=>x.id===id);
-  if(!f) return;
-  f.checkedIn=true;
-  save(); render();
-}
-
-function render(){
-  list.innerHTML="";
-  flights.forEach(f=>{
-    const [h,m]=f.time.split(":");
-    const dep=new Date(); dep.setHours(h,m,0);
-    const arr=new Date(dep.getTime()+f.duration*60000);
-    const state=getState(f);
-
-    let action="", ticket="", stamp="";
-
-    if(state==="checkin"){
-      action=`<div class="action"><button onclick="checkIn(${f.id})">チェックイン</button></div>`;
-    }
-    if(state==="checked"){
-      action=`<div class="checked">✔ チェックイン済</div>`;
-    }
-    if(state==="checked"||state==="boarding"||state==="inflight"){
-      ticket=`
-        <div class="ticket">
-          <div class="ticket-header">BOARDING PASS</div>
-          <div class="ticket-body">
-            <div class="ticket-route">${f.from} → ${f.to}</div>
-          </div>
-        </div>`;
-    }
-    if(state==="noshow"){
-      stamp=`<div class="stamp">NO SHOW</div>`;
-    }
-
-    list.innerHTML+=`
-      <div class="flight">
-        ${stamp}
-        <div class="flight-header">
-          <div class="title">${f.from} → ${f.to}</div>
-          <div class="status ${state}">${state.toUpperCase()}</div>
-        </div>
-        ${action}
-        ${ticket}
-      </div>`;
-  });
-  save();
-}
-
-function save(){
+  closeModal();
   localStorage.setItem("flights",JSON.stringify(flights));
 }
-
-setInterval(render,10000);
-render();
 </script>
 
 </body>
