@@ -152,7 +152,10 @@
         <div class="header-title">Flight Schedule <span id="statusLabel" class="status-badge-header"></span></div>
         <div class="mile-display">✈ <span id="totalMiles">0</span> MILES</div>
     </div>
-    <div class="header-icon" onclick="openAirportModal()">⚙️</div>
+    <div style="display:flex; gap:15px; align-items:center;">
+        <span id="notifBtn" onclick="requestNotification()" style="cursor:pointer; font-size:1.2rem; filter:grayscale(1);">🔔</span>
+        <div class="header-icon" onclick="openAirportModal()">⚙️</div>
+    </div>
 </header>
 
 <div class="container" id="flightList"></div>
@@ -450,6 +453,107 @@
         }
         container.appendChild(s);
     }
+
+    let notifiedFlights = new Set(); // 重複通知防止用
+
+    // 通知許可のリクエスト
+    // 通知許可のリクエスト
+function requestNotification() {
+    if (!("Notification" in window)) {
+        alert("お使いの環境は通知に対応していません。");
+        return;
+    }
+
+    Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+            document.getElementById('notifBtn').style.filter = "none";
+            // 特定のブランド名を出さないテスト通知
+            new Notification("通知設定完了", {
+                body: "チェックイン開始時にこちらでお知らせします。",
+            });
+        }
+    });
+}
+
+// 通知送信関数（ブランド名を排除）
+function sendNotification(f) {
+    if (Notification.permission === "granted" && !notifiedFlights.has(f.id)) {
+        new Notification("搭乗手続きのご案内", {
+            body: `${f.from} ✈ ${f.to} 便のチェックインが可能になりました。`,
+            // アイコン指定を削除、または一般的な飛行機アイコンへ変更
+        });
+        notifiedFlights.add(f.id);
+    }
+}
+
+    // 監視ロジックの更新
+    function checkForNotifications() {
+        flights.forEach(f => {
+            const status = getStatus(f);
+            const canCheckIn = isCheckInOpen(f);
+            
+            // チェックイン可能かつ、まだ通知していない場合
+            if (status === 'RESERVED' && canCheckIn) {
+                sendNotification(f);
+            }
+        });
+    }
+
+    // 座席指定のクラス制限ロジック（前回の回答内容を反映）
+    function initSeatMap() {
+        const grid = document.getElementById('seatGrid'); 
+        grid.innerHTML = '';
+        const selectedClass = document.getElementById('classSelect').value;
+
+        for (let r = 1; r <= 20; r++) {
+            let rowClass = (r <= 2) ? 'FIRST' : (r <= 7) ? 'BUSINESS' : 'ECONOMY';
+            const isLocked = (rowClass !== selectedClass);
+
+            const row = document.createElement('div'); 
+            row.className = 'seat-row';
+            if (isLocked) row.style.opacity = "0.3";
+
+            ['A','B','C'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
+            const aisle = document.createElement('div'); 
+            aisle.className='aisle-gap'; aisle.innerText = r; row.appendChild(aisle);
+            ['H','J','K'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
+            
+            grid.appendChild(row);
+        }
+    }
+
+    function createSeat(container, r, c, isLocked, rowClass) {
+        const s = document.createElement('div'); 
+        s.className = 'seat'; s.innerText = c;
+        if (rowClass === 'FIRST') s.style.borderColor = "var(--diamond)";
+        if (rowClass === 'BUSINESS') s.style.borderColor = "var(--ana-blue-sky)";
+
+        if (isLocked) {
+            s.style.cursor = 'not-allowed';
+            s.style.background = '#ddd';
+        } else {
+            s.onclick = () => { 
+                document.querySelectorAll('.seat').forEach(x => x.classList.remove('selected')); 
+                s.classList.add('selected'); 
+                tempSeat = r + c; 
+            };
+        }
+        container.appendChild(s);
+    }
+
+    // 定期実行の強化
+    function mainLoop() {
+        render();
+        checkForNotifications();
+    }
+
+    // 初期化時に通知状態を確認
+    if (Notification.permission === "granted") {
+        document.getElementById('notifBtn').style.filter = "none";
+    }
+
+    render();
+    setInterval(mainLoop, 10000); // 10秒ごとに状態更新と通知チェック
 </script>
 
 </body>
