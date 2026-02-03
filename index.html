@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<title>My Flights</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    background: #f4f6f8;
+    color: #111;
+  }
+
+  header {
+    background: #0a2a66;
+    color: white;
+    padding: 16px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  main {
+    padding: 16px;
+    max-width: 420px;
+    margin: auto;
+  }
+
+  .flight {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .status {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #eee;
+  }
+
+  .checkin { background: #e8f0ff; color: #0a2a66; }
+  .boarding { background: #fff3cd; }
+  .inflight { background: #d1e7dd; }
+  .landed { background: #e9ecef; }
+
+  .time {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #555;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+    background: #0a2a66;
+    color: white;
+  }
+</style>
+</head>
+<body>
+
+<header>My Flights</header>
+<main id="list"></main>
+<button onclick="addFlight()">＋ フライトを予約</button>
+
+<script>
+const flights = JSON.parse(localStorage.getItem("flights") || "[]");
+
+function addFlight() {
+  const title = prompt("行き先（予定名）");
+  const time = prompt("出発時刻（HH:MM）");
+  const duration = prompt("所要時間（分）");
+
+  if (!title || !time || !duration) return;
+
+  flights.push({
+    id: Date.now(),
+    title,
+    time,
+    duration: Number(duration)
+  });
+  save();
+  render();
+}
+
+function getStatus(f) {
+  const now = new Date();
+  const [h, m] = f.time.split(":");
+  const dep = new Date();
+  dep.setHours(h, m, 0);
+
+  const arr = new Date(dep.getTime() + f.duration * 60000);
+  const diff = (dep - now) / 60000;
+
+  if (now > arr) return ["到着", "landed"];
+  if (now >= dep) return ["実行中", "inflight"];
+  if (diff <= 10) return ["搭乗中", "boarding"];
+  if (diff <= 30) return ["チェックイン", "checkin"];
+  return ["予約済", ""];
+}
+
+function render() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  flights.forEach(f => {
+    const [label, cls] = getStatus(f);
+    const div = document.createElement("div");
+    div.className = "flight";
+    div.innerHTML = `
+      <div class="row">
+        <div class="title">${f.title}</div>
+        <div class="status ${cls}">${label}</div>
+      </div>
+      <div class="time">
+        ✈️ ${f.time} → ${f.duration}分
+      </div>
+    `;
+    list.appendChild(div);
+  });
+
+  save();
+}
+
+function save() {
+  localStorage.setItem("flights", JSON.stringify(flights));
+}
+
+setInterval(render, 10000);
+render();
+</script>
+
+</body>
+</html>
