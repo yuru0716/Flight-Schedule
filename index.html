@@ -143,10 +143,238 @@
         .btn-disabled { background: #ccc !important; cursor: not-allowed; }
 
         .fab { position: fixed; bottom: 30px; right: 25px; width: 65px; height: 65px; background: var(--ana-gradient); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.2rem; box-shadow: 0 8px 20px rgba(0,68,130,0.4); border: none; cursor: pointer; z-index: 90; }
+        .in-app-banner {
+        position: fixed; top: -100px; left: 0; width: 100%;
+        background: var(--ana-blue-main); color: white;
+        padding: 15px; text-align: center; font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 2000; display: flex; align-items: center; justify-content: center; gap: 10px;
+        cursor: pointer;
+    }
+    .in-app-banner.show { top: 0; }
+    .swipe-container {
+        position: relative;
+        width: 100%;
+        height: 50px;
+        background: #eee;
+        border-radius: 25px;
+        margin-top: 15px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #777;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+
+    .swipe-handle {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 60px;
+        height: 50px;
+        background: var(--ana-gradient);
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        z-index: 10;
+        cursor: grab;
+        touch-action: none;
+    }
+
+    /* 切り離しアニメーション */
+    .stub-tear {
+        animation: tear-off 0.6s forwards ease-out;
+    }
+
+    @keyframes tear-off {
+        0% { transform: rotate(0deg) translateY(0); opacity: 1; }
+        30% { transform: rotate(5deg) translateY(10px); opacity: 1; }
+        100% { transform: rotate(15deg) translateY(100px); opacity: 0; }
+    }
+    /* タブメニュー全体のスタイル */
+.tab-container {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 60px; /* ヘッダーの高さに合わせて調整 */
+    z-index: 99; /* ヘッダー(100)のすぐ下 */
+}
+
+.tab-btn {
+    flex: 1;
+    text-align: center;
+    padding: 15px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-btn.active {
+    color: var(--ana-blue-main);
+    border-bottom: 3px solid var(--ana-blue-main);
+    background: rgba(0, 68, 130, 0.05);
+}
+    /* 過去のチケット用スタイル */
+    .flight-card.history {
+    border-top: 4px solid #999; /* 履歴は青ではなくグレーの線に */
+}
+
+/* 履歴カード内の特定の要素だけを白黒・薄くする */
+.flight-card.history .city-code, 
+.flight-card.history .time-value,
+.flight-card.history .route-row,
+.flight-card.history .time-row {
+    filter: grayscale(1);
+    opacity: 0.6;
+}
+
+.boarding-pass {
+    background: white;
+    color: #333;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    position: relative;
+    border: 1px solid #eee;
+}
+
+/* 2次元バーコード（ダミー） */
+.qr-placeholder {
+    width: 140px;
+    height: 140px;
+    background: #f5f5f5;
+    margin: 10px auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+/* 情報表示レイアウト */
+.pass-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2列にして大きく見せる */
+    gap: 20px;
+    text-align: center;
+    border-top: 1px dashed #ccc;
+    padding-top: 20px;
+}
+
+.pass-label {
+    font-size: 0.65rem;
+    color: #888;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+.pass-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #000;
+}
+
+/* グループ番号の強調 */
+.group-badge {
+    background: #000;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.seat-highlight {
+    font-size: 2.5rem; /* かなり大きく */
+    font-weight: bold;
+    color: var(--ana-blue-main);
+    line-height: 1;
+    margin: 10px 0;
+}
+
+/* 搭乗券のコンテナ（最初は隠す） */
+.boarding-pass-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 開いた時の状態 */
+.boarding-pass-container.open {
+    max-height: 500px; /* 十分な高さを指定 */
+}
+
+/* 開閉ボタンのスタイル */
+.toggle-pass-btn {
+    width: 100%;
+    background: #f8f9fa;
+    border: 1px dashed var(--ana-blue-main);
+    color: var(--ana-blue-main);
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.toggle-pass-btn::after {
+    content: '▼';
+    font-size: 0.6rem;
+    transition: transform 0.3s;
+}
+
+.toggle-pass-btn.active::after {
+    transform: rotate(180deg);
+}
+.focus-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px); /* 背景を少しぼかす */
+    z-index: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+}
+
+.focus-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 搭乗券がフォーカスされた時の強調 */
+.boarding-pass-container.open {
+    position: relative;
+    z-index: 1000; /* 暗幕より上に表示 */
+}
+
+.boarding-pass-container.open .boarding-pass {
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+    transform: scale(1.02); /* ほんの少しだけ大きくして浮遊感を出す */
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
     </style>
 </head>
 <body>
-
+<div id="focusOverlay" class="focus-overlay" onclick="closeAllPasses()"></div>
 <header>
     <div class="header-left">
         <div class="header-title">Flight Schedule <span id="statusLabel" class="status-badge-header"></span></div>
@@ -156,7 +384,15 @@
         <span id="notifBtn" onclick="requestNotification()" style="cursor:pointer; font-size:1.2rem; filter:grayscale(1);">🔔</span>
         <div class="header-icon" onclick="openAirportModal()">⚙️</div>
     </div>
+    <div id="notifBanner" class="in-app-banner" onclick="hideBanner()">
+    <span>✈</span> <span id="notifText">搭乗手続きが可能な便があります</span>
+</div>
 </header>
+
+<div class="tab-container">
+    <div id="tab-upcoming" class="tab-btn active" onclick="switchTab('upcoming')">Upcoming</div>
+    <div id="tab-history" class="tab-btn" onclick="switchTab('history')">History</div>
+</div>
 
 <div class="container" id="flightList"></div>
 
@@ -188,6 +424,10 @@
             <div class="form-group">
                 <label>スケジュール</label>
                 <div style="display:flex; gap:10px;">
+                    <div class="input-group">
+                        <label>搭乗日</label>
+                        <input type="date" id="flightDate" value="${new Date().toISOString().split('T')[0]}">
+                    </div>
                     <div style="flex:1"><label style="font-size:0.6rem">出発時刻</label><input type="time" id="timeInput"></div>
                     <div style="flex:1"><label style="font-size:0.6rem">所要時間 (分)</label><input type="number" id="durationInput" value="60"></div>
                 </div>
@@ -203,7 +443,7 @@
 
 <div id="airportModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header-ana"><strong>マイ空港設定</strong><span onclick="closeModal('airportModal')" style="cursor:pointer; font-size:1.5rem">×</span></div>
+        <div class="modal-header-ana"><strong>マイ空港(やること)設定</strong><span onclick="closeModal('airportModal')" style="cursor:pointer; font-size:1.5rem">×</span></div>
         <div class="modal-body">
             <div class="form-group">
                 <div style="display:flex; gap:10px;"><input type="text" id="newAirportCode" placeholder="3レター" maxlength="3" style="flex:1; text-transform:uppercase;"><input type="text" id="newAirportName" placeholder="名称" style="flex:2;"></div>
@@ -228,6 +468,14 @@
     let airports = JSON.parse(localStorage.getItem('my_airports') || JSON.stringify(defaultAirports));
     let flights = JSON.parse(localStorage.getItem('ana_flights_final') || '[]');
     let tempSeat = null;
+    let notifiedFlights = new Set();
+    let bannerShownFor = new Set();
+    
+    // スワイプ用変数
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+    let currentTab = 'upcoming'; // タブ状態の管理
 
     // --- Status & Mile Logic ---
     function getStatusInfo() {
@@ -244,122 +492,427 @@
         const label = document.getElementById('statusLabel');
         label.innerText = info.status;
         label.className = 'status-badge-header st-' + info.status;
-
-        // クラス制限の更新
         document.getElementById('optPremium').disabled = info.total < 1000;
         document.getElementById('optFirst').disabled = info.total < 3000;
     }
 
-    // --- Core Logic ---
     function getStatus(f) {
-        const now = new Date();
-        const [h, m] = f.time.split(':').map(Number);
-        const dep = new Date(); dep.setHours(h, m, 0, 0);
-        const arr = new Date(dep.getTime() + f.duration * 60000); 
-
-        if (now > dep && !f.checkedIn) return 'NOSHOW';
-        if (now > arr) return 'ARRIVED';
-        if (now > dep && f.checkedIn) return 'INFLIGHT';
-        return f.checkedIn ? 'CHECKEDIN' : 'RESERVED';
-    }
+    const now = new Date();
+    // f.date (2026-02-03) と f.time (19:30) を組み合わせて Date オブジェクトを作成
+    const [y, m, d] = (f.date || new Date().toISOString().split('T')[0]).split('-').map(Number);
+    const [hh, mm] = f.time.split(':').map(Number);
+    
+    const dep = new Date(y, m - 1, d, hh, mm);
+    const arr = new Date(dep.getTime() + (f.duration || 60) * 60000); 
+    
+    if (now > arr) return 'ARRIVED'; 
+    if (now > dep && !f.checkedIn) return 'NOSHOW'; 
+    if (now > dep && f.checkedIn) return 'INFLIGHT';
+    return f.checkedIn ? 'CHECKEDIN' : 'RESERVED';
+}
 
     function isCheckInOpen(f) {
-        const now = new Date();
-        const [h, m] = f.time.split(':').map(Number);
-        const dep = new Date(); dep.setHours(h, m, 0, 0);
-        const openTime = new Date(dep.getTime() - 10 * 60000); // 10分前
-        return now >= openTime && now <= dep;
+    const now = new Date();
+    const [y, m, d] = (f.date || new Date().toISOString().split('T')[0]).split('-').map(Number);
+    const [hh, mm] = f.time.split(':').map(Number);
+    
+    const dep = new Date(y, m - 1, d, hh, mm);
+    const openTime = new Date(dep.getTime() - 10 * 60000); // 10分前
+    return now >= openTime && now <= dep;
+}
+
+    // --- Tab Switching ---
+    function switchTab(tab) {
+        currentTab = tab;
+        document.getElementById('tab-upcoming').classList.toggle('active', tab === 'upcoming');
+        document.getElementById('tab-history').classList.toggle('active', tab === 'history');
+        render(); // 再描画
     }
 
-    function render() {
-        updateHeader();
-        const list = document.getElementById('flightList');
-        if(flights.length === 0) {
-            list.innerHTML = '<div style="text-align:center; color:#999; margin-top:50px">予約がありません</div>';
-            return;
+    // --- Swipe UI Logic ---
+    function getCheckInUI(f, canCheckIn) {
+        if (!canCheckIn) {
+            return `<div class="swipe-container" style="opacity:0.5; background:#ccc; color:#666">出発10分前から受付開始</div>`;
         }
-        flights.sort((a,b) => a.time.localeCompare(b.time));
+        return `
+            <div class="swipe-container" id="swipeContainer-${f.id}">
+                <div class="swipe-handle" 
+                     onmousedown="handleSwipeStart(event, ${f.id})"
+                     ontouchstart="handleSwipeStart(event, ${f.id})">✈</div>
+                スワイプしてチェックイン
+            </div>
+        `;
+    }
 
-        list.innerHTML = flights.map(f => {
-            const status = getStatus(f);
-            const canCheckIn = isCheckInOpen(f);
-            const isNoShow = status === 'NOSHOW';
+    function handleSwipeStart(e, id) {
+        startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        isDragging = true;
+        const handle = e.target;
+        handle.style.transition = 'none';
+
+        const moveHandler = (ev) => handleSwipeMove(ev, id);
+        const endHandler = () => {
+            handleSwipeEnd(id);
+            window.removeEventListener('mousemove', moveHandler);
+            window.removeEventListener('touchmove', moveHandler);
+            window.removeEventListener('mouseup', endHandler);
+            window.removeEventListener('touchend', endHandler);
+        };
+
+        window.addEventListener('mousemove', moveHandler);
+        window.addEventListener('touchmove', moveHandler, { passive: false });
+        window.addEventListener('mouseup', endHandler);
+        window.addEventListener('touchend', endHandler);
+    }
+
+    function handleSwipeMove(e, id) {
+        if (!isDragging) return;
+        if (e.cancelable) e.preventDefault();
+        const container = document.getElementById(`swipeContainer-${id}`);
+        const handle = container.querySelector('.swipe-handle');
+        const maxMove = container.offsetWidth - handle.offsetWidth;
+        const x = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        currentX = x - startX;
+        if (currentX < 0) currentX = 0;
+        if (currentX > maxMove) currentX = maxMove;
+        handle.style.transform = `translateX(${currentX}px)`;
+        container.style.background = `rgba(0, 68, 130, ${0.1 + (currentX/maxMove) * 0.2})`;
+    }
+
+    function handleSwipeEnd(id) {
+        if (!isDragging) return;
+        isDragging = false;
+        const container = document.getElementById(`swipeContainer-${id}`);
+        const handle = container.querySelector('.swipe-handle');
+        const maxMove = container.offsetWidth - handle.offsetWidth;
+        if (currentX >= maxMove * 0.9) {
+            handle.style.transition = 'transform 0.2s';
+            handle.style.transform = `translateX(${maxMove}px)`;
+            setTimeout(() => {
+                if (window.navigator.vibrate) window.navigator.vibrate(30);
+                doCheckIn(id);
+            }, 200);
+        } else {
+            handle.style.transition = 'transform 0.3s ease';
+            handle.style.transform = 'translateX(0)';
+            container.style.background = '#eee';
+        }
+        currentX = 0;
+    }
+
+    // --- Render ---
+    function render() {
+    updateHeader();
+    const list = document.getElementById('flightList');
+    
+    const displayFlights = flights.filter(f => {
+        const status = getStatus(f);
+        const isHistory = (status === 'ARRIVED' || status === 'NOSHOW');
+        return currentTab === 'upcoming' ? !isHistory : isHistory;
+    });
+
+    let summaryHtml = '';
+    if (currentTab === 'history' && displayFlights.length > 0) {
+        const totalFlights = displayFlights.length;
+        const arrivedCount = displayFlights.filter(f => getStatus(f) === 'ARRIVED').length;
+        const noshowCount = displayFlights.filter(f => getStatus(f) === 'NOSHOW').length;
+        const totalMinutes = displayFlights
+    .filter(f => getStatus(f) === 'ARRIVED')
+    .reduce((sum, f) => sum + Number(f.duration), 0);
+
+        // 分を「日・時間・分」に変換
+        const days = Math.floor(totalMinutes / 1440);
+        const hours = Math.floor((totalMinutes % 1440) / 60);
+        const mins = totalMinutes % 60;
+
+        // 表示用のテキスト作成
+        let timeStr = "";
+        if (days > 0) timeStr += `${days}d `;
+        timeStr += `${hours}h ${mins}m`;
+        
+        // 最多路線の算出ロジック
+        const routes = displayFlights.map(f => `${f.from} ✈ ${f.to}`);
+        const mostFrequentRoute = routes.sort((a,b) =>
+              routes.filter(v => v===a).length - routes.filter(v => v===b).length
+        ).pop();
+
+        let rankTitle = "BEGINNER";
+        let rankColor = "#fff"; // 基本は白
+        if (totalMinutes >= 6000) {
+            rankTitle = "SKY LEGEND";
+            rankColor = "var(--gold)"; // レジェンドは金
+        } else if (totalMinutes >= 1440) {
+            rankTitle = "CLOUD DWELLER"; // 雲の住人
+            rankColor = "#e5e4e2"; // プラチナ（シルバー）
+        } else if (totalMinutes >= 600) {
+            rankTitle = "SKY RUNNER";
+            rankColor = "#87ceeb"; // スカイブルー
+        }
+
+        summaryHtml = `
+    <div style="background: var(--ana-gradient); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,68,130,0.2); position: relative; overflow: hidden;">
+        <div style="position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.1; transform: rotate(-20deg);">✈</div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <div style="font-size: 0.75rem; opacity: 0.8; letter-spacing: 1.5px;">TOTAL AIR TIME</div>
+            <div style="font-size: 0.7rem; font-weight: bold; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; color: ${rankColor}; border: 1px solid ${rankColor}55;">
+                ${rankTitle}
+            </div>
+        </div>
+
+        <div style="font-size: 2.2rem; font-weight: bold; font-family: sans-serif; margin-bottom: 15px;">
+            ${timeStr}
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
+            <div>
+                <div style="font-size: 0.7rem; opacity: 0.8;">搭乗回数</div>
+                <div style="font-size: 1.1rem; font-weight: bold;">${totalFlights} <span style="font-size: 0.7rem;">回</span></div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 0.7rem; opacity: 0.8;">定時搭乗率</div>
+                <div style="font-size: 1.1rem; font-weight: bold;">${Math.round((arrivedCount/totalFlights)*100)}%</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.7rem; opacity: 0.8;">累計マイル</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: var(--gold);">${totalMinutes.toLocaleString()}</div>
+            </div>
+        </div>
+    </div>
+`;
+    }
+
+    if(displayFlights.length === 0) {
+        list.innerHTML = summaryHtml + `<div style="text-align:center; color:#999; margin-top:50px">
+            ${currentTab === 'upcoming' ? 'これからの予定はありません' : '搭乗履歴はありません'}
+        </div>`;
+        return;
+    }
+
+    // 3. 並び替え
+    displayFlights.sort((a,b) => currentTab === 'upcoming' 
+        ? a.time.localeCompare(b.time) 
+        : b.time.localeCompare(a.time));
+
+    // 4. 描画（ここがエラーの箇所です）
+    // summaryHtml を先頭に置き、その後に各フライトのカードを結合します
+    list.innerHTML = summaryHtml + displayFlights.map(f => {
+        const status = getStatus(f);
+    const canCheckIn = isCheckInOpen(f);
+    const isHistory = (status === 'ARRIVED' || status === 'NOSHOW');
+    
+    // 【追加：日付のフォーマット処理】
+    // データの f.date (2026-02-03) を読み込んで、表示用の文字列（2月3日(火)）を作ります
+    const dateObj = new Date(f.date || new Date());
+    const dateStr = dateObj.toLocaleDateString('ja-JP', { 
+        month: 'short', 
+        day: 'numeric', 
+        weekday: 'short' 
+    });
+
+    const [h, m] = f.time.split(':').map(Number);
+    // 日付も考慮して到着時刻を計算
+    const depDate = new Date(dateObj); 
+    depDate.setHours(h, m, 0, 0);
+    const arrDate = new Date(depDate.getTime() + f.duration * 60000);
+    const arrTimeStr = arrDate.getHours().toString().padStart(2,'0') + ':' + arrDate.getMinutes().toString().padStart(2,'0');
+        
+
+        return `
+        <div class="flight-card ${isHistory ? 'history' : ''}" data-id="${f.id}">
+            ${status === 'NOSHOW' ? '<div class="noshow-overlay"><div class="noshow-stamp">NO SHOW</div></div>' : ''}
+            ${status === 'ARRIVED' ? '<div class="noshow-overlay"><div class="noshow-stamp" style="border-color:var(--gold); color:var(--gold);">ARRIVED</div></div>' : ''}
             
-            const [h, m] = f.time.split(':').map(Number);
-            const depDate = new Date(); depDate.setHours(h, m, 0, 0);
-            const arrDate = new Date(depDate.getTime() + f.duration * 60000);
-            const arrTimeStr = arrDate.getHours().toString().padStart(2,'0') + ':' + arrDate.getMinutes().toString().padStart(2,'0');
+            <div class="card-inner">
+                <div style="font-size: 0.75rem; color: var(--ana-blue-main); font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                    <span style="font-size: 0.9rem;">📅</span> ${dateStr}
+                </div>
 
-            return `
-                <div class="flight-card">
-                    ${isNoShow ? '<div class="noshow-overlay"><div class="noshow-stamp">NO SHOW</div></div>' : ''}
-                    <div class="card-inner">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                            <span class="status-badge badge-${status.toLowerCase()}">${status}</span>
-                            <span style="font-size:0.8rem; color:#999">#${String(f.id).slice(-4)}</span>
-                        </div>
-                        <div class="route-row">
-                            <div class="city-box"><div class="city-code">${f.from}</div><div class="city-name">${f.fromName}</div></div>
-                            <div style="color:var(--ana-blue-sky)">✈</div>
-                            <div class="city-box"><div class="city-code">${f.to}</div><div class="city-name">${f.toName}</div></div>
-                        </div>
-                        <div class="time-row">
-                            <div class="time-box"><div class="time-label">DEP</div><div class="time-value">${f.time}</div></div>
-                            <div class="duration-center">⎯ ${f.duration}min ⎯</div>
-                            <div class="time-box"><div class="time-label">ARR</div><div class="time-value">${arrTimeStr}</div></div>
-                        </div>
-                        ${status === 'ARRIVED' ? `<div class="mile-tag">+${f.duration} MILES</div>` : ''}
-                        ${(status === 'RESERVED') ? `
-                            <button class="btn btn-checkin ${!canCheckIn ? 'btn-disabled' : ''}" 
-                                    onclick="${canCheckIn ? `doCheckIn(${f.id})` : ''}">
-                                ${canCheckIn ? 'オンラインチェックイン' : 'チェックイン開始までお待ちください'}
-                            </button>
-                        ` : ''}
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span class="status-badge badge-${status.toLowerCase()}">${status}</span>
+                    <span style="font-size:0.8rem; color:#999">#${String(f.id).slice(-4)}</span>
+                </div>
+                    
+                    <div class="route-row">
+                        <div class="city-box"><div class="city-code">${f.from}</div><div class="city-name">${f.fromName}</div></div>
+                        <div style="color:var(--ana-blue-sky)">✈</div>
+                        <div class="city-box"><div class="city-code">${f.to}</div><div class="city-name">${f.toName}</div></div>
                     </div>
-                    ${(f.checkedIn && status !== 'ARRIVED' && !isNoShow) ? `
-                        <div class="boarding-pass">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <div><div style="font-size:0.7rem; color:#666">SEAT</div><div style="font-size:1.5rem; font-weight:bold; color:var(--ana-blue-main)">${f.seat}</div></div>
-                                <div><div style="font-size:0.7rem; color:#666">CLASS</div><div style="font-size:1rem; font-weight:bold;">${f.boardingClass || 'ECONOMY'}</div></div>
-                                <div style="text-align:right"><div style="font-size:0.7rem; color:#666">GROUP</div><div style="font-size:1.2rem; font-weight:bold;">3</div></div>
+
+                    <div class="time-row">
+                        <div class="time-box"><div class="time-label">DEP</div><div class="time-value">${f.time}</div></div>
+                        <div class="duration-center">⎯ ${f.duration}min ⎯</div>
+                        <div class="time-box"><div class="time-label">ARR</div><div class="time-value">${arrTimeStr}</div></div>
+                    </div>
+
+                    ${isHistory ? `
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px dashed #ddd;">
+                            <div style="font-size:0.75rem; font-weight:bold; color:${status === 'ARRIVED' ? 'var(--gold)' : '#999'}">
+                                ${status === 'ARRIVED' ? `+${f.duration} MILES` : '0 MILES (NO SHOW)'}
                             </div>
+                            <button onclick='repeatFlight(${JSON.stringify(f)})' 
+                                    style="background: var(--ana-blue-main); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 68, 130, 0.3); position: relative; z-index: 10;">
+                                再予約 ✈
+                            </button>
                         </div>
                     ` : ''}
+
+                    ${(status === 'RESERVED' && currentTab === 'upcoming') ? getCheckInUI(f, canCheckIn) : ''}
                 </div>
-            `;
-        }).join('');
-    }
 
-    // --- Interaction Logic (Restored) ---
-    function saveFlight() {
-        const fromCode = document.getElementById('fromSelect').value;
-        const toCode = document.getElementById('toSelect').value;
-        const fromAp = airports.find(a => a.code === fromCode);
-        const toAp = airports.find(a => a.code === toCode);
-        const f = {
-            id: Date.now(),
-            from: fromCode, fromName: fromAp ? fromAp.name : '',
-            to: toCode, toName: toAp ? toAp.name : '',
-            time: document.getElementById('timeInput').value,
-            duration: parseInt(document.getElementById('durationInput').value) || 60,
-            seat: tempSeat || 'ANY',
-            boardingClass: document.getElementById('classSelect').value,
-            checkedIn: false
-        };
-        if(!f.time) return alert('出発時刻を入力してください');
-        flights.push(f);
-        localStorage.setItem('ana_flights_final', JSON.stringify(flights));
-        closeModal('newFlightModal');
-        render();
-    }
+                ${(f.checkedIn && !isHistory) ? `
+    <button class="toggle-pass-btn" onclick="toggleBoardingPass(this)">
+        搭乗券を表示
+    </button>
+    <div class="boarding-pass-container">
+        <div class="boarding-pass">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <div>
+                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">BOARDING PASS</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--ana-blue-main);">${f.from} → ${f.to}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">CLASS</div>
+                    <div style="font-size: 0.9rem; font-weight: bold;">${f.boardingClass || 'ECONOMY'}</div>
+                </div>
+            </div>
 
+            <div style="text-align: center; padding: 10px 0 20px 0;">
+                <div style="font-size: 0.65rem; color: #888; font-weight: bold;">ASSIGNED SEAT</div>
+                <div style="font-size: 2.8rem; font-weight: bold; color: var(--ana-blue-main); line-height: 1;">${f.seat}</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: center; border-top: 1px dashed #ccc; padding-top: 20px;">
+                <div>
+                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">GROUP</div>
+                    <div style="font-size: 1.2rem; font-weight: bold;"><span style="background: #000; color: #fff; padding: 2px 8px; border-radius: 4px;">3</span></div>
+                </div>
+                <div>
+                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">GATE</div>
+                    <div style="font-size: 1.2rem; font-weight: bold;">T1</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center; font-size: 0.65rem; color: #666; background: #f9f9f9; padding: 10px; border-radius: 6px;">
+                出発時刻の<strong>20分前</strong>までに保安検査場をご通過ください
+            </div>
+        </div>
+    </div>
+        ` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+    // --- Other Functions ---
     function doCheckIn(id) {
         flights = flights.map(f => f.id === id ? {...f, checkedIn: true} : f);
         localStorage.setItem('ana_flights_final', JSON.stringify(flights));
         render();
     }
 
-    // Modal/UI Helpers
+    function saveFlight() {
+    const fromCode = document.getElementById('fromSelect').value;
+    const toCode = document.getElementById('toSelect').value;
+    const dateVal = document.getElementById('dateInput').value; // 追加
+    const fromAp = airports.find(a => a.code === fromCode);
+    const toAp = airports.find(a => a.code === toCode);
+    
+    const f = {
+        id: Date.now(),
+        date: dateVal || new Date().toISOString().split('T')[0], // 追加
+        from: fromCode, 
+        fromName: fromAp ? fromAp.name : '',
+        to: toCode, 
+        toName: toAp ? toAp.name : '',
+        time: document.getElementById('timeInput').value,
+        duration: parseInt(document.getElementById('durationInput').value) || 60,
+        seat: tempSeat || 'ANY',
+        boardingClass: document.getElementById('classSelect').value,
+        checkedIn: false
+    };
+    
+    if(!f.time || !f.date) return alert('日付と時刻を入力してください');
+    
+    flights.push(f);
+    localStorage.setItem('ana_flights_final', JSON.stringify(flights));
+    closeModal('newFlightModal');
+    render();
+}
+
+    function initSeatMap() {
+        const grid = document.getElementById('seatGrid'); 
+        grid.innerHTML = '';
+        const selectedClass = document.getElementById('classSelect').value;
+        for (let r = 1; r <= 20; r++) {
+            let rowClass = (r <= 2) ? 'FIRST' : (r <= 7) ? 'BUSINESS' : 'ECONOMY';
+            const isLocked = (rowClass !== selectedClass);
+            const row = document.createElement('div'); 
+            row.className = 'seat-row';
+            if (isLocked) row.style.opacity = "0.3";
+            ['A','B','C'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
+            const aisle = document.createElement('div'); aisle.className='aisle-gap'; aisle.innerText = r; row.appendChild(aisle);
+            ['H','J','K'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
+            grid.appendChild(row);
+        }
+    }
+
+    function createSeat(container, r, c, isLocked, rowClass) {
+        const s = document.createElement('div'); 
+        s.className = 'seat'; s.innerText = c;
+        if (rowClass === 'FIRST') s.style.borderColor = "var(--diamond)";
+        if (rowClass === 'BUSINESS') s.style.borderColor = "var(--ana-blue-sky)";
+        if (isLocked) {
+            s.style.cursor = 'not-allowed';
+            s.style.background = '#ddd';
+        } else {
+            s.onclick = () => { 
+                document.querySelectorAll('.seat').forEach(x => x.classList.remove('selected')); 
+                s.classList.add('selected'); 
+                tempSeat = r + c; 
+            };
+        }
+        container.appendChild(s);
+    }
+
+    function requestNotification() {
+        if (!("Notification" in window)) return alert("非対応ブラウザです");
+        Notification.requestPermission().then(p => {
+            if (p === "granted") {
+                document.getElementById('notifBtn').style.filter = "none";
+                new Notification("通知設定完了", { body: "準備が整いました。" });
+            }
+        });
+    }
+
+    function sendNotification(f) {
+        if (Notification.permission === "granted" && !notifiedFlights.has(f.id)) {
+            new Notification("搭乗手続きのご案内", { body: `${f.from} ✈ ${f.to} 便の受付が始まりました。` });
+            notifiedFlights.add(f.id);
+        }
+    }
+
+    function showInAppBanner(f) {
+        if (bannerShownFor.has(f.id)) return;
+        const banner = document.getElementById('notifBanner');
+        document.getElementById('notifText').innerText = `搭乗手続きのご案内: ${f.from} ✈ ${f.to}`;
+        banner.classList.add('show');
+        setTimeout(hideBanner, 8000);
+        bannerShownFor.add(f.id);
+    }
+
+    function hideBanner() { document.getElementById('notifBanner').classList.remove('show'); }
+
+    function mainLoop() {
+        render(); // 10秒おきにステータスをチェックして自動振り分け
+        flights.forEach(f => {
+            if (getStatus(f) === 'RESERVED' && isCheckInOpen(f)) {
+                sendNotification(f);
+                showInAppBanner(f);
+            }
+        });
+    }
+
     function openNewFlightModal() { tempSeat = null; document.getElementById('seatLabel').innerText = '未指定'; updateHeader(); updateSelectOptions(); document.getElementById('newFlightModal').style.display = 'block'; }
     function openAirportModal() { renderAirportList(); document.getElementById('airportModal').style.display = 'block'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -380,180 +933,67 @@
         if(c && n) { airports.push({code:c, name:n}); localStorage.setItem('my_airports', JSON.stringify(airports)); renderAirportList(); }
     }
     function deleteAirport(i) { airports.splice(i, 1); localStorage.setItem('my_airports', JSON.stringify(airports)); renderAirportList(); }
-    function initSeatMap() {
-        const grid = document.getElementById('seatGrid'); grid.innerHTML = '';
-        for (let r = 1; r <= 15; r++) {
-            const row = document.createElement('div'); row.className = 'seat-row';
-            ['A','B','C'].forEach(c => createSeat(row, r, c));
-            const aisle = document.createElement('div'); aisle.className='aisle-gap'; aisle.innerText=r; row.appendChild(aisle);
-            ['H','J','K'].forEach(c => createSeat(row, r, c));
-            grid.appendChild(row);
-        }
-    }
-    function createSeat(container, r, c) {
-        const s = document.createElement('div'); s.className = 'seat'; s.innerText = c;
-        s.onclick = () => { document.querySelectorAll('.seat').forEach(x=>x.classList.remove('selected')); s.classList.add('selected'); tempSeat = r+c; };
-        container.appendChild(s);
-    }
 
+    if (Notification.permission === "granted") document.getElementById('notifBtn').style.filter = "none";
     render();
-    setInterval(render, 15000);
+    setInterval(mainLoop, 10000);
 
-    function initSeatMap() {
-        const grid = document.getElementById('seatGrid'); 
-        grid.innerHTML = '';
-        const selectedClass = document.getElementById('classSelect').value;
-
-        for (let r = 1; r <= 20; r++) {
-            // 列ごとのクラス判定
-            let rowClass = 'ECONOMY';
-            if (r <= 2) rowClass = 'FIRST';
-            else if (r <= 7) rowClass = 'BUSINESS';
-
-            const isLocked = (rowClass !== selectedClass);
-
-            const row = document.createElement('div'); 
-            row.className = 'seat-row';
-            if (isLocked) row.style.opacity = "0.3"; // 選択不可の列を薄くする
-
-            // 左側座席
-            ['A','B','C'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
-            
-            // 通路
-            const aisle = document.createElement('div'); 
-            aisle.className='aisle-gap'; 
-            aisle.innerText = r; 
-            row.appendChild(aisle);
-            
-            // 右側座席
-            ['H','J','K'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
-            
-            grid.appendChild(row);
-        }
-    }
-
-    function createSeat(container, r, c, isLocked, rowClass) {
-        const s = document.createElement('div'); 
-        s.className = 'seat'; 
-        s.innerText = c;
+    function repeatFlight(f) {
+    // タブを「予定」に切り替え
+    switchTab('upcoming');
+    
+    // 新規予約モーダルを開く
+    openNewFlightModal();
+    
+    // データを流し込む
+    setTimeout(() => {
+        document.getElementById('fromSelect').value = f.from;
+        document.getElementById('toSelect').value = f.to;
+        document.getElementById('durationInput').value = f.duration;
+        document.getElementById('classSelect').value = f.boardingClass || 'ECONOMY';
         
-        // クラスに応じた色分け（視認性向上）
-        if (rowClass === 'FIRST') s.style.borderColor = "var(--diamond)";
-        if (rowClass === 'BUSINESS') s.style.borderColor = "var(--ana-blue-sky)";
+        // 前回の座席をヒントとして表示
+        tempSeat = null;
+        document.getElementById('seatLabel').innerText = `未指定 (前回: ${f.seat})`;
+        
+        // 時刻は現在の10分後をデフォルトにする
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 10);
+        const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+        document.getElementById('timeInput').value = timeStr;
+    }, 100);
+}
 
-        if (isLocked) {
-            s.style.cursor = 'not-allowed';
-            s.style.background = '#ddd';
-        } else {
-            s.onclick = () => { 
-                document.querySelectorAll('.seat').forEach(x => x.classList.remove('selected')); 
-                s.classList.add('selected'); 
-                tempSeat = r + c; 
-            };
-        }
-        container.appendChild(s);
+function toggleBoardingPass(btn) {
+    const container = btn.nextElementSibling;
+    const overlay = document.getElementById('focusOverlay');
+    const isOpen = container.classList.toggle('open');
+    
+    btn.classList.toggle('active');
+    btn.textContent = isOpen ? '搭乗券を閉じる' : '搭乗券を表示';
+
+    if (isOpen) {
+        overlay.classList.add('active');
+        // 他の要素が重ならないようにカードを最前面へ
+        btn.parentElement.style.zIndex = "1001";
+    } else {
+        overlay.classList.remove('active');
+        btn.parentElement.style.zIndex = "";
     }
+}
 
-    let notifiedFlights = new Set(); // 重複通知防止用
-
-    // 通知許可のリクエスト
-    // 通知許可のリクエスト
-function requestNotification() {
-    if (!("Notification" in window)) {
-        alert("お使いの環境は通知に対応していません。");
-        return;
-    }
-
-    Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-            document.getElementById('notifBtn').style.filter = "none";
-            // 特定のブランド名を出さないテスト通知
-            new Notification("通知設定完了", {
-                body: "チェックイン開始時にこちらでお知らせします。",
-            });
-        }
+// 背景をタップした時に閉じる用
+function closeAllPasses() {
+    const openPasses = document.querySelectorAll('.boarding-pass-container.open');
+    openPasses.forEach(container => {
+        const btn = container.previousElementSibling;
+        container.classList.remove('open');
+        btn.classList.remove('active');
+        btn.textContent = '搭乗券を表示';
+        btn.parentElement.style.zIndex = "";
     });
+    document.getElementById('focusOverlay').classList.remove('active');
 }
-
-// 通知送信関数（ブランド名を排除）
-function sendNotification(f) {
-    if (Notification.permission === "granted" && !notifiedFlights.has(f.id)) {
-        new Notification("搭乗手続きのご案内", {
-            body: `${f.from} ✈ ${f.to} 便のチェックインが可能になりました。`,
-            // アイコン指定を削除、または一般的な飛行機アイコンへ変更
-        });
-        notifiedFlights.add(f.id);
-    }
-}
-
-    // 監視ロジックの更新
-    function checkForNotifications() {
-        flights.forEach(f => {
-            const status = getStatus(f);
-            const canCheckIn = isCheckInOpen(f);
-            
-            // チェックイン可能かつ、まだ通知していない場合
-            if (status === 'RESERVED' && canCheckIn) {
-                sendNotification(f);
-            }
-        });
-    }
-
-    // 座席指定のクラス制限ロジック（前回の回答内容を反映）
-    function initSeatMap() {
-        const grid = document.getElementById('seatGrid'); 
-        grid.innerHTML = '';
-        const selectedClass = document.getElementById('classSelect').value;
-
-        for (let r = 1; r <= 20; r++) {
-            let rowClass = (r <= 2) ? 'FIRST' : (r <= 7) ? 'BUSINESS' : 'ECONOMY';
-            const isLocked = (rowClass !== selectedClass);
-
-            const row = document.createElement('div'); 
-            row.className = 'seat-row';
-            if (isLocked) row.style.opacity = "0.3";
-
-            ['A','B','C'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
-            const aisle = document.createElement('div'); 
-            aisle.className='aisle-gap'; aisle.innerText = r; row.appendChild(aisle);
-            ['H','J','K'].forEach(c => createSeat(row, r, c, isLocked, rowClass));
-            
-            grid.appendChild(row);
-        }
-    }
-
-    function createSeat(container, r, c, isLocked, rowClass) {
-        const s = document.createElement('div'); 
-        s.className = 'seat'; s.innerText = c;
-        if (rowClass === 'FIRST') s.style.borderColor = "var(--diamond)";
-        if (rowClass === 'BUSINESS') s.style.borderColor = "var(--ana-blue-sky)";
-
-        if (isLocked) {
-            s.style.cursor = 'not-allowed';
-            s.style.background = '#ddd';
-        } else {
-            s.onclick = () => { 
-                document.querySelectorAll('.seat').forEach(x => x.classList.remove('selected')); 
-                s.classList.add('selected'); 
-                tempSeat = r + c; 
-            };
-        }
-        container.appendChild(s);
-    }
-
-    // 定期実行の強化
-    function mainLoop() {
-        render();
-        checkForNotifications();
-    }
-
-    // 初期化時に通知状態を確認
-    if (Notification.permission === "granted") {
-        document.getElementById('notifBtn').style.filter = "none";
-    }
-
-    render();
-    setInterval(mainLoop, 10000); // 10秒ごとに状態更新と通知チェック
 </script>
 
 </body>
