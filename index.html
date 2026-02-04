@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flight Schedule</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
         :root {
             --ana-blue-dark: #002D5A;
@@ -553,10 +555,95 @@
     width: 100%; height: 100%;
 }
 
+/* フォーカスモード用のスタイル */
+.focus-active body {
+    overflow: hidden; /* スクロール禁止 */
+}
+
+.focus-overlay-screen {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #000;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.focus-overlay-screen.active {
+    display: flex;
+    animation: fadeIn 0.8s ease;
+}
+
+.focus-exit-btn {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid white;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.runway-loader {
+    width: 80%; max-width: 400px; height: 30px;
+    border-bottom: 2px dashed rgba(255,255,255,0.3);
+    position: relative; margin: 20px auto;
+}
+
+.plane-icon-progress {
+    position: absolute; bottom: -10px;
+    font-size: 1.5rem; transition: left 1s linear;
+}
+
+/* アナウンスのテロップ風アニメーション */
+.announcement-bar {
+    background: rgba(0, 68, 130, 0.8);
+    color: white; padding: 10px; width: 100%;
+    position: absolute; top: 80px;
+    font-size: 0.8rem; text-align: center;
+    overflow: hidden; white-space: nowrap;
+}
+
     </style>
 </head>
 <body>
+    <div id="scanModal" class="modal" style="display:none; position:fixed; z-index:5000; left:0; top:0; width:100%; height:100%; background:#000; flex-direction:column; align-items:center; justify-content:center;">
+    <div style="color:white; margin-bottom:20px; font-weight:bold;">QRコードをスキャン</div>
+    <div style="position:relative; width:80%; max-width:300px; aspect-ratio:1/1; border:2px solid var(--ana-blue-sky); border-radius:15px; overflow:hidden;">
+        <video id="video" style="width:100%; height:100%; object-fit:cover;"></video>
+        <div style="position:absolute; top:10%; left:10%; right:10%; bottom:10%; border:1px dashed rgba(255,255,255,0.5);"></div>
+    </div>
+    <button onclick="stopScan()" style="margin-top:30px; padding:12px 40px; border-radius:25px; border:none; background:white; color:black; font-weight:bold;">キャンセル</button>
+    <canvas id="canvas" style="display:none;"></canvas>
+</div>
+    <audio id="cabinNoise" loop src="https://www.soundjay.com/transportation/airplane-cabin-white-noise-01.mp3"></audio>
+
+<div id="focusModeScreen" class="focus-overlay-screen">
+    <div id="announcementBar" class="announcement-bar" style="display:none;">
+        <span id="announcementText"></span>
+    </div>
+    <button class="focus-exit-btn" onclick="toggleFocusMode()">EXIT FOCUS</button>
+    <div id="focusContent" style="text-align: center; width: 100%;"></div>
+</div>
 <div id="focusOverlay" class="focus-overlay" onclick="closeAllPasses()"></div>
+<div id="qrModal" class="modal" onclick="this.style.display='none'">
+    <div class="modal-content" onclick="event.stopPropagation()" style="text-align: center;">
+        <h3 style="color: var(--ana-blue-main);">SHARE FLIGHT</h3>
+        <p style="font-size: 0.8rem; color: #666;">このQRコードをスキャンして共有</p>
+        <div id="qrcode" style="display: flex; justify-content: center; margin: 20px 0;"></div>
+        <button onclick="document.getElementById('qrModal').style.display='none'" style="width: 100%; padding: 10px; background: #eee; border: none; border-radius: 8px;">閉じる</button>
+    </div>
+</div>
 <header>
     <div class="header-left">
         <div class="header-title">Flight Schedule <span id="statusLabel" class="status-badge-header"></span></div>
@@ -579,6 +666,9 @@
 <div class="container" id="flightList"></div>
 
 <button class="fab" onclick="openNewFlightModal()">+</button>
+<button onclick="startScan()" style="background:var(--ana-blue-main); color:white; border:none; padding:10px 15px; border-radius:20px; font-weight:bold;">
+    📷 QRスキャン
+</button>
 
 <div id="newFlightModal" class="modal">
     <div class="modal-content">
@@ -851,6 +941,8 @@
         }
     });
 
+    
+
     // 4. 描画
     // 4. 描画
     list.innerHTML = summaryHtml + displayFlights.map(f => {
@@ -955,81 +1047,117 @@
         }
 
         return `
-            <div class="flight-card ${isHistory ? 'history' : ''} dynamic-bg ${bgClass}" data-id="${f.id}">
-                ${status === 'NOSHOW' ? '<div class="noshow-overlay"><div class="noshow-stamp">NO SHOW</div></div>' : ''}
-                ${status === 'ARRIVED' ? '<div class="noshow-overlay"><div class="noshow-stamp" style="border-color:var(--gold); color:var(--gold);">ARRIVED</div></div>' : ''}
-                
-                <div class="card-inner">
-                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.9); font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
-                        <span style="font-size: 0.9rem;">📅</span> ${dateStr}
+    <div class="flight-card ${isHistory ? 'history' : ''} dynamic-bg ${bgClass}" data-id="${f.id}">
+        ${status === 'NOSHOW' ? '<div class="noshow-overlay"><div class="noshow-stamp">NO SHOW</div></div>' : ''}
+        ${status === 'ARRIVED' ? '<div class="noshow-overlay"><div class="noshow-stamp" style="border-color:var(--gold); color:var(--gold);">ARRIVED</div></div>' : ''}
+        
+        <div class="card-inner">
+            <button onclick="toggleFocusMode()" style="margin-top: 10px; width: 100%; background: rgba(0,0,0,0.8); color: white; border: 1px solid white; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                🔭 集中モード（全画面）を起動
+            </button>
+            <div style="font-size: 0.75rem; color: rgba(255,255,255,0.9); font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                <span style="font-size: 0.9rem;">📅</span> ${dateStr}
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span class="status-badge badge-${status.toLowerCase()}">${status}</span>
+                <span style="font-size:0.8rem; color:rgba(255,255,255,0.5)">#${String(f.id).slice(-4)}</span>
+            </div>
+            <div class="route-row">
+                <div class="city-box"><div class="city-code" style="color:white !important;">${f.from}</div><div class="city-name" style="color:rgba(255,255,255,0.8) !important;">${f.fromName}</div></div>
+                <div style="color:rgba(255,255,255,0.8)">✈</div>
+                <div class="city-box"><div class="city-code" style="color:white !important;">${f.to}</div><div class="city-name" style="color:rgba(255,255,255,0.8) !important;">${f.toName}</div></div>
+            </div>
+            <div class="time-row" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);">
+                <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">DEP</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${f.time}</div></div>
+                <div class="duration-center" style="color:rgba(255,255,255,0.6)">⎯ ${f.duration}m ⎯</div>
+                <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">ARR</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${arrTimeStr}</div></div>
+            </div>
+
+            ${progressHtml}
+
+            ${isHistory ? `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.3);">
+                    <div style="font-size:0.75rem; font-weight:bold; color:${status === 'ARRIVED' ? 'var(--gold)' : 'rgba(255,255,255,0.5)'}">
+                        ${status === 'ARRIVED' ? `1. LOGGED: +${f.duration} MILES` : '0 MILES (NO SHOW)'}
                     </div>
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <span class="status-badge badge-${status.toLowerCase()}">${status}</span>
-                        <span style="font-size:0.8rem; color:rgba(255,255,255,0.5)">#${String(f.id).slice(-4)}</span>
-                    </div>
-                    <div class="route-row">
-                        <div class="city-box"><div class="city-code" style="color:white !important;">${f.from}</div><div class="city-name" style="color:rgba(255,255,255,0.8) !important;">${f.fromName}</div></div>
-                        <div style="color:rgba(255,255,255,0.8)">✈</div>
-                        <div class="city-box"><div class="city-code" style="color:white !important;">${f.to}</div><div class="city-name" style="color:rgba(255,255,255,0.8) !important;">${f.toName}</div></div>
-                    </div>
-                    <div class="time-row" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);">
-                        <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">DEP</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${f.time}</div></div>
-                        <div class="duration-center" style="color:rgba(255,255,255,0.6)">⎯ ${f.duration}m ⎯</div>
-                        <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">ARR</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${arrTimeStr}</div></div>
+                    <button onclick='repeatFlight(${JSON.stringify(f)})' style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; cursor: pointer;">再予約 ✈</button>
+                </div>` : ''}
+
+            ${(status === 'RESERVED' && currentTab === 'upcoming') ? getCheckInUI(f, canCheckIn) : ''}
+            ${(status === 'CHECKEDIN' && currentTab === 'upcoming') ? `<div style="text-align:center; color:white; font-size:0.8rem; margin-top:10px; font-weight:bold;">✓ チェックイン済み</div>` : ''}
+        </div>
+
+        ${(f.checkedIn && !isHistory) ? `
+            <button class="toggle-pass-btn" onclick="toggleBoardingPass(this)" style="background: rgba(255,255,255,0.15); border: 1px dashed rgba(255,255,255,0.5); color: white;">搭乗券を表示</button>
+            <div class="boarding-pass-container">
+                <div class="boarding-pass" style="padding:0; overflow:hidden; border-radius:15px; position:relative;">
+                    <div style="background: var(--ana-blue-main); color: white; padding: 10px; text-align: center; font-size: 0.7rem; font-weight: bold; letter-spacing: 2px;">
+                        THE AIRLINE BOARDING PASS
                     </div>
                     
-
-                    ${progressHtml}
-
-                    ${isHistory ? `
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.3);">
-                            <div style="font-size:0.75rem; font-weight:bold; color:${status === 'ARRIVED' ? 'var(--gold)' : 'rgba(255,255,255,0.5)'}">
-                                ${status === 'ARRIVED' ? `1. LOGGED: +${f.duration} MILES` : '0 MILES (NO SHOW)'}
+                    <div style="padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                            <div>
+                                <div style="font-size: 0.65rem; color: #888; font-weight: bold;">TASK LOCATION</div>
+                                <div style="font-size: 1.2rem; font-weight: bold; color: var(--ana-blue-main);">${f.from} → ${f.to}</div>
                             </div>
-                            <button onclick='repeatFlight(${JSON.stringify(f)})' style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; cursor: pointer;">再予約 ✈</button>
-                        </div>` : ''}
-
-                    ${(status === 'RESERVED' && currentTab === 'upcoming') ? getCheckInUI(f, canCheckIn) : ''}
-                    ${(status === 'CHECKEDIN' && currentTab === 'upcoming') ? `<div style="text-align:center; color:white; font-size:0.8rem; margin-top:10px; font-weight:bold;">✓ チェックイン済み</div>` : ''}
-                </div>
-
-                ${(f.checkedIn && !isHistory) ? `
-                    <button class="toggle-pass-btn" onclick="toggleBoardingPass(this)" style="background: rgba(255,255,255,0.15); border: 1px dashed rgba(255,255,255,0.5); color: white;">搭乗券を表示</button>
-                    <div class="boarding-pass-container">
-                        <div class="boarding-pass">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                                <div>
-                                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">TASK LOCATION</div>
-                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--ana-blue-main);">${f.fromName} → ${f.toName}</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">TASK CLASS</div>
-                                    <div style="font-size: 0.9rem; font-weight: bold;">${f.boardingClass || 'ECONOMY'}</div>
-                                </div>
-                            </div>
-                            
-                            <div style="text-align: center; padding: 10px 0 20px 0;">
-                                <div style="font-size: 0.65rem; color: #888; font-weight: bold;">ASSIGNED WORK STYLE</div>
-                                <div style="font-size: 1.3rem; font-weight: bold; color: var(--ana-blue-main); line-height: 1.2;">
-                                    ${getWorkStyle(f.seat)}<br>
-                                    <span style="font-size: 0.8rem; color: #888; font-weight: normal;">SEAT: ${f.seat}</span>
-                                </div>
-                            </div>
-
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: center; border-top: 1px dashed #ccc; padding-top: 20px;">
-                                <div>
-                                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">PRIORITY</div>
-                                    <div style="font-size: 1.2rem; font-weight: bold;"><span style="background: #000; color: #fff; padding: 2px 8px; border-radius: 4px;">${priorityGroup}</span></div>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">GATE (SPOT)</div>
-                                    <div style="font-size: 1.2rem; font-weight: bold;">${gateLabel}</div>
-                                </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.65rem; color: #888; font-weight: bold;">TASK CLASS</div>
+                                <div style="font-size: 0.9rem; font-weight: bold;">${f.boardingClass || 'ECONOMY'}</div>
                             </div>
                         </div>
-                    </div>` : ''}
-            </div>`;
+
+                        <div class="boarding-pass-inner" style="position: relative; background: white; padding: 20px 15px; border-radius: 12px; border: 1px dashed #ccc; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <div id="qrcode-${f.id}" style="background: white; padding: 5px; display: flex; justify-content: center;"></div>
+                            <div style="font-size: 0.6rem; color: #999; margin-top: 8px; letter-spacing: 1px;">SCAN TO SHARE</div>
+                            
+                            <div style="position: absolute; width: 20px; height: 20px; background: #eee; border-radius: 50%; top: 50%; left: -11px; transform: translateY(-50%); border: 1px dashed #ccc;"></div>
+                            <div style="position: absolute; width: 20px; height: 20px; background: #eee; border-radius: 50%; top: 50%; right: -11px; transform: translateY(-50%); border: 1px dashed #ccc;"></div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 20px 0 10px 0;">
+                            <div style="font-size: 0.65rem; color: #888; font-weight: bold;">ASSIGNED WORK STYLE</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: var(--ana-blue-main); line-height: 1.2;">
+                                ${getWorkStyle(f.seat)}<br>
+                                <span style="font-size: 0.8rem; color: #888; font-weight: normal;">SEAT: ${f.seat}</span>
+                            </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: center; border-top: 1px dashed #ccc; padding-top: 15px;">
+                            <div>
+                                <div style="font-size: 0.65rem; color: #888; font-weight: bold;">PRIORITY</div>
+                                <div style="font-size: 1.2rem; font-weight: bold;"><span style="background: #000; color: #fff; padding: 2px 8px; border-radius: 4px;">${priorityGroup}</span></div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.65rem; color: #888; font-weight: bold;">GATE (SPOT)</div>
+                                <div style="font-size: 1.2rem; font-weight: bold;">${gateLabel}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>` : ''}
+    </div>`;
     }).join('');
+
+    displayFlights.forEach(f => {
+        const qrContainer = document.getElementById(`qrcode-${f.id}`);
+        if (qrContainer) {
+            // データをURL化（btoaでエンコード）
+            const data = `${f.from},${f.to},${f.date},${f.time},${f.duration}`;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?add=${btoa(data)}`;
+
+            qrContainer.innerHTML = ""; // 重複防止
+            new QRCode(qrContainer, {
+                text: shareUrl,
+                width: 80,  // 搭乗券に収まるサイズ
+                height: 80,
+                colorDark : "#000000", // ANAブルー
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+        }
+    });
+
 }
 
     // --- Other Functions ---
@@ -1253,6 +1381,253 @@ function getBgClass(timeStr) {
     if (hour >= 16 && hour < 19) return 'bg-sunset'; // 16:00 - 18:59
     return 'bg-night';                               // それ以外（夜）
 }
+
+let isFocusMode = false;
+const cabinAudio = document.getElementById('cabinNoise');
+
+function toggleFocusMode() {
+    const screen = document.getElementById('focusModeScreen');
+    const content = document.getElementById('focusContent');
+    const announcement = document.getElementById('announcementBar');
+    const annText = document.getElementById('announcementText');
+
+    isFocusMode = !isFocusMode;
+
+    if (isFocusMode) {
+        const activeFlight = flights.find(f => getStatus(f) === 'INFLIGHT');
+        if (!activeFlight) {
+            alert("現在飛行中のフライトが必要です");
+            isFocusMode = false; return;
+        }
+
+        // --- 修正: 自作ノイズのみを開始 ---
+        startCabinNoise();
+
+        announcement.style.display = 'block';
+        announcement.style.opacity = '1'; // 透明度を戻す
+        annText.innerText = "Ladies and gentlemen, welcome onboard. Please fasten your seatbelt for deep work.";
+        setTimeout(() => { announcement.style.opacity = '0'; }, 8000);
+
+        updateFocusUI(activeFlight, content);
+        window.focusTimer = setInterval(() => updateFocusUI(activeFlight, content), 1000);
+
+        screen.classList.add('active');
+        document.body.classList.add('focus-active');
+    } else {
+        // --- 修正: 停止処理 ---
+        stopCabinNoise();
+        
+        clearInterval(window.focusTimer);
+        screen.classList.remove('active');
+        document.body.classList.remove('focus-active');
+    }
+}
+
+function updateFocusUI(f, container) {
+    const now = new Date().getTime();
+    const [h, m] = f.time.split(':').map(Number);
+    const depT = new Date(f.date).setHours(h, m);
+    const elapsed = now - depT;
+    const totalMs = f.duration * 60000;
+    const percent = Math.min(Math.max((elapsed / totalMs) * 100, 0), 100);
+    const remainingMins = Math.max(0, f.duration - Math.floor(elapsed / 60000));
+
+    container.innerHTML = `
+        <div style="font-size: 0.8rem; letter-spacing: 4px; opacity: 0.6; margin-bottom: 20px;">CRUISING</div>
+        <div class="card-window-wrapper" style="width: 100px; height: 140px; margin: 0 auto 30px;">
+            <div class="card-window-shade" style="transform: translateY(-100%);"></div>
+            <div class="sky-view sky-day" style="width:100%; height:100%;">
+                <div class="cloud-particle" style="top:20%; width:40px; height:12px; animation-duration: 8s;"></div>
+            </div>
+        </div>
+        <div style="font-size: 2.5rem; font-weight: bold; letter-spacing: 2px;">${f.from} ✈ ${f.to}</div>
+        
+        <div class="runway-loader">
+            <div class="plane-icon-progress" style="left: ${percent}%;">✈</div>
+        </div>
+        
+        <div style="font-size: 1.5rem; font-family: monospace; color: var(--gold); margin-top: 10px;">
+            到着まで: ${remainingMins} 分
+        </div>
+        <div style="font-size: 0.7rem; opacity: 0.5; margin-top: 40px; font-style: italic;">
+            "Enjoy your focused flight our flight."
+        </div>
+    `;
+}
+
+let audioCtx = null;
+let noiseNode = null;
+let filterNode = null;
+
+function startCabinNoise() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
+    if (noiseNode) return;
+
+    const bufferSize = 2 * audioCtx.sampleRate;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+    }
+
+    noiseNode = audioCtx.createBufferSource();
+    noiseNode.buffer = noiseBuffer;
+    noiseNode.loop = true;
+
+    // 低音を強調するフィルター設定
+    filterNode = audioCtx.createBiquadFilter();
+    filterNode.type = 'lowpass';
+    // 150から200に少し上げると、音に厚みが出ます
+    filterNode.frequency.setValueAtTime(200, audioCtx.currentTime); 
+
+    const gainNode = audioCtx.createGain();
+    // ★ここを 0.1 から 0.4 に変更（4倍の音量）
+    gainNode.gain.setValueAtTime(1, audioCtx.currentTime); 
+
+    noiseNode.connect(filterNode);
+    filterNode.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    noiseNode.start();
+}
+
+function stopCabinNoise() {
+    if (noiseNode) {
+        noiseNode.stop();
+        noiseNode.disconnect();
+        noiseNode = null; // リセット
+    }
+}
+
+// 1. フライト情報をURLに変換してQRを表示
+function shareFlight(id) {
+    const f = flights.find(x => x.id === id);
+    if (!f) return;
+
+    // データを圧縮してURLパラメータを作成
+    const data = `${f.from},${f.to},${f.date},${f.time},${f.duration}`;
+    const shareUrl = `${window.location.origin}${window.location.pathname}?add=${btoa(data)}`;
+
+    // QRコードの生成
+    const qrContainer = document.getElementById("qrcode");
+    qrContainer.innerHTML = ""; // 前のQRをクリア
+    new QRCode(qrContainer, {
+        text: shareUrl,
+        width: 200,
+        height: 200
+    });
+
+    document.getElementById('qrModal').style.display = 'flex';
+}
+
+// 2. ページ読み込み時にURLパラメータを確認（受け取り側）
+window.addEventListener('load', () => {
+    const params = new URLSearchParams(window.location.search);
+    const addData = params.get('add');
+    if (addData) {
+        try {
+            const decoded = atob(addData).split(',');
+            const newFlight = {
+                id: Date.now(),
+                from: decoded[0],
+                to: decoded[1],
+                date: decoded[2],
+                time: decoded[3],
+                duration: parseInt(decoded[4]),
+                checkedIn: false
+            };
+            flights.push(newFlight);
+            saveFlights();
+            render();
+            // URLを綺麗にする（パラメータを消す）
+            window.history.replaceState({}, document.title, window.location.pathname);
+            alert("共有されたフライトを追加しました！🛫");
+        } catch (e) {
+            console.error("共有データの読み込みに失敗しました");
+        }
+    }
+});
+
+let videoStream = null;
+
+function startScan() {
+    const video = document.getElementById("video");
+    const modal = document.getElementById("scanModal");
+    modal.style.display = "flex";
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
+        videoStream = stream;
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.play();
+        requestAnimationFrame(tick);
+    });
+}
+
+function stopScan() {
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+    }
+    document.getElementById("scanModal").style.display = "none";
+}
+
+function tick() {
+    const video = document.getElementById("video");
+    const canvasElement = document.getElementById("canvas");
+    const canvas = canvasElement.getContext("2d");
+
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvasElement.height = video.videoHeight;
+        canvasElement.width = video.videoWidth;
+        canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+        const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+
+        if (code) {
+            // QRコードの中にURL（?add=...）が含まれているかチェック
+            if (code.data.includes("?add=")) {
+                const url = new URL(code.data);
+                const addData = url.searchParams.get('add');
+                if (addData) {
+                    processAddData(addData); // 既存の取り込みロジックへ
+                    stopScan();
+                    alert("フライトを取り込みました！");
+                    return;
+                }
+            }
+        }
+    }
+    if (document.getElementById("scanModal").style.display === "flex") {
+        requestAnimationFrame(tick);
+    }
+}
+
+// 受け取りロジックを共通化
+function processAddData(addData) {
+    try {
+        const decoded = atob(addData).split(',');
+        const newFlight = {
+            id: Date.now(),
+            from: decoded[0], to: decoded[1],
+            date: decoded[2], time: decoded[3],
+            duration: parseInt(decoded[4]),
+            boardingClass: decoded[5] || 'ECONOMY',
+            seat: decoded[6] || 'ANY',
+            checkedIn: false
+        };
+        flights.push(newFlight);
+        localStorage.setItem('ana_flights_final', JSON.stringify(flights));
+        render();
+    } catch(e) { console.error("Invalid QR Data"); }
+}
+
 </script>
 
 </body>
