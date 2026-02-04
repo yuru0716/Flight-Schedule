@@ -1143,7 +1143,8 @@
         const qrContainer = document.getElementById(`qrcode-${f.id}`);
         if (qrContainer) {
             // データをURL化（btoaでエンコード）
-            const data = `${f.from},${f.to},${f.date},${f.time},${f.duration}`;
+            // render関数の最後のループ内
+            const data = `${f.from},${f.to},${f.date},${f.time},${f.duration},${f.boardingClass},${f.seat}`;
             const shareUrl = `${window.location.origin}${window.location.pathname}?add=${btoa(data)}`;
 
             qrContainer.innerHTML = ""; // 重複防止
@@ -1533,24 +1534,42 @@ window.addEventListener('load', () => {
     const addData = params.get('add');
     if (addData) {
         try {
+            // Base64デコードして配列に戻す
             const decoded = atob(addData).split(',');
+            
+            // データの順番をQR生成時と完全に一致させる
+            // 0:from, 1:to, 2:date, 3:time, 4:duration, 5:class, 6:seat
+            const fromAp = airports.find(a => a.code === decoded[0]);
+            const toAp = airports.find(a => a.code === decoded[1]);
+
             const newFlight = {
                 id: Date.now(),
                 from: decoded[0],
+                fromName: fromAp ? fromAp.name : '',
                 to: decoded[1],
+                toName: toAp ? toAp.name : '',
                 date: decoded[2],
                 time: decoded[3],
                 duration: parseInt(decoded[4]),
+                boardingClass: decoded[5] || 'ECONOMY',
+                seat: decoded[6] || 'ANY',
                 checkedIn: false
             };
-            flights.push(newFlight);
-            saveFlights();
-            render();
-            // URLを綺麗にする（パラメータを消す）
+
+            // 重複チェック（同じ出発地・目的地・時刻なら追加しない）
+            const isDuplicate = flights.some(f => f.from === newFlight.from && f.time === newFlight.time && f.date === newFlight.date);
+            
+            if (!isDuplicate) {
+                flights.push(newFlight);
+                localStorage.setItem('ana_flights_final', JSON.stringify(flights));
+                render();
+                alert("✈️ 共有されたフライトを追加しました！");
+            }
+            
+            // URLからパラメータを消してスッキリさせる
             window.history.replaceState({}, document.title, window.location.pathname);
-            alert("共有されたフライトを追加しました！🛫");
         } catch (e) {
-            console.error("共有データの読み込みに失敗しました");
+            console.error("共有データの読み込みに失敗しました:", e);
         }
     }
 });
