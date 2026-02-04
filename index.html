@@ -641,6 +641,85 @@
     background: #ccddee; /* 少し青みがかった白 */
 }
 
+/* 外枠：機体の壁面 */
+.window-outer-frame {
+    width: 300px;
+    height: 400px;
+    margin: 0 auto;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 120px;
+    padding: 15px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 窓枠の内側：奥行き */
+.window-inner-frame {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    border-radius: 105px;
+    border: 10px solid #cbd5e1;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 10px 30px rgba(0,0,0,0.5);
+    cursor: pointer;
+}
+
+/* シェード：色をハッキリさせ、手前に配置 */
+#window-shade {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    /* ★ここが修正ポイント：模様とグラデーションを1行で重ねる */
+    background-image: 
+        /* 1層目：蛇腹のテクスチャ（隙間が透明） */
+        repeating-linear-gradient(
+            0deg, 
+            rgba(255,255,255,0.9) 0px, 
+            rgba(255,255,255,0.9) 1px, 
+            transparent 1px, 
+            transparent 15px
+        ),
+        /* 2層目：ベースの色（不透明なグラデーション） */
+        linear-gradient(to bottom, #f3f4f6 0%, #d1d5db 100%) !important;
+
+    /* 万が一画像が読み込めない場合の不透明色 */
+    background-color: #f3f4f6 !important;
+    
+    /* 景色の手前に表示 */
+    z-index: 10 !important;
+    
+    /* アニメーション設定 */
+    transition: transform 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    transform: translateY(-100%); /* 初期状態は上（開いている） */
+    
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 25px;
+    pointer-events: none; /* クリックを親要素に通す */
+}
+
+/* シェードが閉じた状態 */
+#window-shade.shade-closed {
+    transform: translateY(-5%) !important;
+}
+
+/* つまみ */
+.shade-handle {
+    width: 70px;
+    height: 8px;
+    background: #6b7280;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
     </style>
 </head>
 <body>
@@ -1468,36 +1547,56 @@ function updateFocusUI(f, container) {
     if (!document.getElementById('focus-window-body')) {
         const hour = new Date().getHours();
         let skyGradient = 'linear-gradient(to bottom, #1e90ff 0%, #87ceeb 100%)'; 
-        if (hour >= 18 || hour < 6) {
-            skyGradient = 'linear-gradient(to bottom, #001a33 0%, #004482 100%)';
-        }
+        if (hour >= 18 || hour < 6) skyGradient = 'linear-gradient(to bottom, #001a33 0%, #004482 100%)';
 
         container.innerHTML = `
             <div id="focus-window-body" style="text-align:center; color: white;">
                 <div style="font-size: 0.8rem; letter-spacing: 4px; opacity: 0.6; margin-bottom: 20px;">CRUISING</div>
                 
-                <div class="card-window-wrapper" style="width: 280px; height: 380px; margin: 0 auto 30px; border-radius: 110px; border: 12px solid #e0e0e0; position:relative; overflow:hidden; background: ${skyGradient}; box-shadow: inset 0 0 60px rgba(0,0,0,0.4);">
-                    <div style="width:100%; height:100%; position:relative;">
-                        <div class="real-cloud" style="top:25%; transform:scale(0.5); animation-duration: 12s; opacity: 0.5;"></div>
-                        <div class="real-cloud" style="top:45%; transform:scale(1.2); animation-duration: 25s; animation-delay: -5s;"></div>
-                        <div class="real-cloud" style="top:75%; transform:scale(1.8); animation-duration: 40s; animation-delay: -15s; filter: blur(12px); opacity: 0.4;"></div>
+                <div class="window-outer-frame">
+                    <div class="window-inner-frame" onclick="toggleShade()">
+                        <div id="window-shade">
+                            <div class="shade-handle"></div>
+                        </div>
+                        <div class="sky-background" style="background: ${skyGradient}; position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;">
+                            <div class="real-cloud" style="top:25%; transform:scale(0.5); animation-duration: 12s; opacity: 0.5;"></div>
+                            <div class="real-cloud" style="top:45%; transform:scale(1.2); animation-duration: 25s; animation-delay: -5s;"></div>
+                            <div class="real-cloud" style="top:75%; transform:scale(1.8); animation-duration: 40s; animation-delay: -15s; filter: blur(12px); opacity: 0.4;"></div>
+                        </div>
                     </div>
                 </div>
 
-                <div style="font-size: 2.5rem; font-weight: bold; letter-spacing: 2px;">${f.from} ✈ ${f.to}</div>
-                <div style="width:300px; height:4px; background:rgba(255,255,255,0.2); margin:25px auto; position:relative; border-radius: 2px;">
-                    <div id="focus-plane" style="position:absolute; top:-8px; font-size:14px; transition: left 1s linear;">✈</div>
+                <div style="font-size: 2.2rem; font-weight: bold; letter-spacing: 2px; margin-top:30px;">${f.from} ✈ ${f.to}</div>
+
+                <div style="width:300px; height:2px; background:rgba(255,255,255,0.2); margin:30px auto 10px; position:relative; border-radius: 2px;">
+                    <div style="position:absolute; width:100%; height:100%; background-image: linear-gradient(to right, white 50%, transparent 50%); background-size: 20px 100%; opacity: 0.3;"></div>
+                    <div id="focus-plane" style="position:absolute; top:-12px; font-size:18px; transition: left 1s linear; z-index:2;">✈</div>
                 </div>
-                <div id="focus-timer-text" style="font-size: 1.8rem; font-family: monospace; color: var(--gold); font-weight: bold;"></div>
+                
+                <div id="focus-timer-text" style="font-size: 1.5rem; font-family: monospace; color: var(--gold); font-weight: bold; margin-top:10px;"></div>
+                
+                <div style="font-size: 0.7rem; opacity: 0.5; margin-top: 30px; font-style: italic;">
+                    "Enjoy your flight over the clouds."
+                </div>
             </div>
         `;
     }
 
+    // 数値と飛行機の位置を更新
     const plane = document.getElementById('focus-plane');
-    if (plane) plane.style.left = `${percent}%`;
+    if (plane) plane.style.left = `calc(${percent}% - 9px)`; // アイコンの半分ずらして中心に合わせる
+
     const timerText = document.getElementById('focus-timer-text');
     if (timerText) timerText.innerText = `到着まで: ${remainingMins} 分`;
 }
+
+function toggleShade() {
+    const shade = document.getElementById('window-shade');
+    if (shade) {
+        shade.classList.toggle('shade-closed');
+        console.log("Shade toggled"); // デバッグ用
+    }
+}   
 
 let audioCtx = null;
 let noiseNode = null;
