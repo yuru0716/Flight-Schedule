@@ -1021,12 +1021,12 @@
                                    : 'translateY(-100%)';
 
             progressHtml = `
-                <div class="flight-main-content" style="display: flex; flex-direction: column; align-items: center; margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 12px;">
-                    <div class="card-window-wrapper" style="width: 60px; height: 80px; background: #000; border: 4px solid #e0e0e0; border-radius: 25px; position: relative; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                <div class="flight-main-content" style="display: flex; flex-direction: column; align-items: center; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 12px;">
+                    <div class="card-window-wrapper" style="width: 100px; height: 130px; background: #000; border: 6px solid #e0e0e0; border-radius: 40px; position: relative; overflow: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); margin-bottom: 10px;">
                         <div class="card-window-shade" style="
                             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
                             background: linear-gradient(to bottom, #e0e0e0 0%, #b0b0b0 100%);
-                            border-bottom: 3px solid #888; z-index: 5;
+                            border-bottom: 4px solid #888; z-index: 5;
                             transition: transform 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
                             transform: ${shadeTransform};
                         ">
@@ -1037,7 +1037,7 @@
                         </div>
                     </div>
                     
-                    <div style="width: 100%; margin-top: 12px;">
+                    <div style="width: 100%; margin-top: 5px;">
                         <div class="progress-container" style="width:100%; height:4px; background: rgba(255,255,255,0.2); border-radius:2px; position:relative;">
                             <div class="progress-bar" style="width: ${percent}%; height:100%; background: white;"></div>
                             <div class="progress-plane" style="position:absolute; left: ${percent}%; top:-8px; transform:translateX(-50%); color: white; font-size:12px;">✈</div>
@@ -1435,8 +1435,8 @@ function updateFocusUI(f, container) {
 
     container.innerHTML = `
         <div style="font-size: 0.8rem; letter-spacing: 4px; opacity: 0.6; margin-bottom: 20px;">CRUISING</div>
-        <div class="card-window-wrapper" style="width: 100px; height: 140px; margin: 0 auto 30px;">
-            <div class="card-window-shade" style="transform: translateY(-100%);"></div>
+        <div class="card-window-wrapper" style="width: 200px; height: 280px; margin: 0 auto 30px;">
+            <div class="card-window-shade" style="transform: translateY(-300%);"></div>
             <div class="sky-view sky-day" style="width:100%; height:100%;">
                 <div class="cloud-particle" style="top:20%; width:40px; height:12px; animation-duration: 8s;"></div>
             </div>
