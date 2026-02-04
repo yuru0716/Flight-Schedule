@@ -132,7 +132,18 @@
         .seat-map-container { position: relative; z-index: 10; padding: 20px 10px; }
         .seat-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 6px; }
         .aisle-gap { width: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #ccc; }
-        .seat { width: 28px; height: 28px; background: #eef2f6; border: 1px solid #ccd1d6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #666; cursor: pointer; }
+        .seat {
+    width: 35px;
+    height: 40px; /* 少し高くする */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column; /* 縦並びにする */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: white;
+}
         .seat.selected { background: var(--ana-blue-main); color: white; }
 
         /* Buttons */
@@ -371,6 +382,177 @@
     transform: scale(1.02); /* ほんの少しだけ大きくして浮遊感を出す */
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+.progress-container {
+    width: 100%;
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    margin: 15px 0;
+    position: relative;
+    overflow: visible;
+}
+
+/* 実際に伸びるバー */
+.progress-bar {
+    height: 100%;
+    background: var(--ana-gradient);
+    border-radius: 3px;
+    transition: width 1s linear;
+}
+
+/* バーの先端で飛ぶ飛行機アイコン */
+.progress-plane {
+    position: absolute;
+    top: -8px;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+    transition: left 1s linear;
+}
+
+/* 進捗バーと一緒に <style> に追加 */
+.pulse {
+    color: #e60012; /* ANAの機材トラブル表示ではなく、ライブ状態を示す赤 */
+    animation: blink 1.5s infinite;
+    margin-right: 4px;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+/* 時間帯ごとの背景パターン */
+.bg-day { background: linear-gradient(135deg, #4da3ff 0%, #0056b3 100%); }      /* 昼：青空 */
+.bg-sunset { background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%); }   /* 夕方：茜色 */
+.bg-night { background: linear-gradient(135deg, #001f3f 0%, #000814 100%); }    /* 夜：星空 */
+.bg-dawn { background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%); }     /* 明け方：薄明 */
+
+/* カードの文字が見やすいように調整 */
+.flight-card.dynamic-bg {
+    color: white !important;
+    border: none !important;
+}
+.flight-card.dynamic-bg .city-code, 
+.flight-card.dynamic-bg .time-value {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4); /* 影を少し強めて視認性アップ */
+    font-weight: 800;
+}
+
+.flight-card.dynamic-bg .city-name, 
+.flight-card.dynamic-bg .time-label,
+.flight-card.dynamic-bg .duration-center {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.flight-card.dynamic-bg .time-row {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 進捗バーの背景も少し白くして見やすくする */
+.flight-card.dynamic-bg .progress-container {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.flight-card.dynamic-bg .progress-plane {
+    color: #ffffff;
+}
+
+/* チェックイン後のメインエリア（縦並び） */
+.flight-main-content {
+    display: flex;
+    flex-direction: column; /* 縦並びに設定 */
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+}
+
+/* 表面の窓スタイル */
+.card-window-wrapper {
+    width: 60px;
+    height: 80px;
+    background: #000;
+    border: 4px solid #e0e0e0;
+    border-radius: 25px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* シェード（初期は半分閉じ） */
+.card-window-shade {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 55%;
+    background: linear-gradient(to bottom, #d1d1d1, #a0a0a0);
+    border-bottom: 2px solid #777;
+    z-index: 5;
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 飛行中にシェードを開ける */
+.status-inflight .card-window-shade {
+    transform: translateY(-100%);
+}
+/* 雲の動き */
+.cloud-particle {
+    position: absolute; background: white; border-radius: 50%; filter: blur(4px); opacity: 0.5;
+    animation: particles-move 15s linear infinite;
+}
+@keyframes particles-move { from { transform: translateX(80px); } to { transform: translateX(-60px); } }
+
+/* 表面の窓スタイル */
+.card-window-wrapper {
+    width: 60px; height: 80px; background: #000;
+    border: 4px solid #e0e0e0; border-radius: 25px;
+    position: relative; overflow: hidden; margin-bottom: 10px;
+}
+.card-window-shade {
+    position: absolute; top: 0; left: 0; width: 100%; height: 55%;
+    background: linear-gradient(to bottom, #d1d1d1, #a0a0a0);
+    border-bottom: 2px solid #777; z-index: 5;
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* INFLIGHT状態の時だけシェードを上げる */
+.dynamic-bg.bg-inflight .card-window-shade, 
+.dynamic-bg[class*="status-inflight"] .card-window-shade {
+    transform: translateY(-100%);
+}
+/* 空の色 */
+.sky-morning { background: linear-gradient(to bottom, #4a90e2, #f5a623); }
+.sky-day     { background: linear-gradient(to bottom, #1e90ff, #87ceeb); }
+.sky-evening { background: linear-gradient(to bottom, #2c3e50, #ff7e5f); }
+.sky-night   { background: linear-gradient(to bottom, #00000c, #000050); }
+
+.card-window-shade {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, #d1d1d1, #a0a0a0);
+    border-bottom: 3px solid #777;
+    z-index: 5;
+    /* 1秒かけて動く設定 */
+    transition: transform 1.0s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    transform: translateY(-100%); /* 基本は開いている */
+}
+
+/* 窓の中の景色（地上と空の切り替え用） */
+.window-view-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 地上の景色の簡易表現 */
+.ground-view {
+    background: linear-gradient(to bottom, #87ceeb 0%, #87ceeb 50%, #91b33e 50%, #91b33e 100%);
+    width: 100%; height: 100%;
+}
+
     </style>
 </head>
 <body>
@@ -615,192 +797,238 @@
     if (currentTab === 'history' && displayFlights.length > 0) {
         const totalFlights = displayFlights.length;
         const arrivedCount = displayFlights.filter(f => getStatus(f) === 'ARRIVED').length;
-        const noshowCount = displayFlights.filter(f => getStatus(f) === 'NOSHOW').length;
         const totalMinutes = displayFlights
-    .filter(f => getStatus(f) === 'ARRIVED')
-    .reduce((sum, f) => sum + Number(f.duration), 0);
+            .filter(f => getStatus(f) === 'ARRIVED')
+            .reduce((sum, f) => sum + Number(f.duration), 0);
 
-        // 分を「日・時間・分」に変換
         const days = Math.floor(totalMinutes / 1440);
         const hours = Math.floor((totalMinutes % 1440) / 60);
         const mins = totalMinutes % 60;
 
-        // 表示用のテキスト作成
         let timeStr = "";
         if (days > 0) timeStr += `${days}d `;
         timeStr += `${hours}h ${mins}m`;
         
-        // 最多路線の算出ロジック
-        const routes = displayFlights.map(f => `${f.from} ✈ ${f.to}`);
-        const mostFrequentRoute = routes.sort((a,b) =>
-              routes.filter(v => v===a).length - routes.filter(v => v===b).length
-        ).pop();
-
         let rankTitle = "BEGINNER";
-        let rankColor = "#fff"; // 基本は白
-        if (totalMinutes >= 6000) {
-            rankTitle = "SKY LEGEND";
-            rankColor = "var(--gold)"; // レジェンドは金
-        } else if (totalMinutes >= 1440) {
-            rankTitle = "CLOUD DWELLER"; // 雲の住人
-            rankColor = "#e5e4e2"; // プラチナ（シルバー）
-        } else if (totalMinutes >= 600) {
-            rankTitle = "SKY RUNNER";
-            rankColor = "#87ceeb"; // スカイブルー
-        }
+        let rankColor = "#fff"; 
+        if (totalMinutes >= 6000) { rankTitle = "SKY LEGEND"; rankColor = "var(--gold)"; }
+        else if (totalMinutes >= 1440) { rankTitle = "CLOUD DWELLER"; rankColor = "#e5e4e2"; }
+        else if (totalMinutes >= 600) { rankTitle = "SKY RUNNER"; rankColor = "#87ceeb"; }
 
         summaryHtml = `
-    <div style="background: var(--ana-gradient); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,68,130,0.2); position: relative; overflow: hidden;">
-        <div style="position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.1; transform: rotate(-20deg);">✈</div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-            <div style="font-size: 0.75rem; opacity: 0.8; letter-spacing: 1.5px;">TOTAL AIR TIME</div>
-            <div style="font-size: 0.7rem; font-weight: bold; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; color: ${rankColor}; border: 1px solid ${rankColor}55;">
-                ${rankTitle}
-            </div>
-        </div>
-
-        <div style="font-size: 2.2rem; font-weight: bold; font-family: sans-serif; margin-bottom: 15px;">
-            ${timeStr}
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
-            <div>
-                <div style="font-size: 0.7rem; opacity: 0.8;">搭乗回数</div>
-                <div style="font-size: 1.1rem; font-weight: bold;">${totalFlights} <span style="font-size: 0.7rem;">回</span></div>
-            </div>
-            <div style="text-align: center;">
-                <div style="font-size: 0.7rem; opacity: 0.8;">定時搭乗率</div>
-                <div style="font-size: 1.1rem; font-weight: bold;">${Math.round((arrivedCount/totalFlights)*100)}%</div>
-            </div>
-            <div style="text-align: right;">
-                <div style="font-size: 0.7rem; opacity: 0.8;">累計マイル</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: var(--gold);">${totalMinutes.toLocaleString()}</div>
-            </div>
-        </div>
-    </div>
-`;
+            <div style="background: var(--ana-gradient); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,68,130,0.2); position: relative; overflow: hidden;">
+                <div style="position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.1; transform: rotate(-20deg);">✈</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <div style="font-size: 0.75rem; opacity: 0.8; letter-spacing: 1.5px;">TOTAL AIR TIME</div>
+                    <div style="font-size: 0.7rem; font-weight: bold; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; color: ${rankColor}; border: 1px solid ${rankColor}55;">${rankTitle}</div>
+                </div>
+                <div style="font-size: 2.2rem; font-weight: bold; font-family: sans-serif; margin-bottom: 15px;">${timeStr}</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
+                    <div><div style="font-size: 0.7rem; opacity: 0.8;">搭乗回数</div><div style="font-size: 1.1rem; font-weight: bold;">${totalFlights} <span style="font-size: 0.7rem;">回</span></div></div>
+                    <div style="text-align: center;"><div style="font-size: 0.7rem; opacity: 0.8;">定時搭乗率</div><div style="font-size: 1.1rem; font-weight: bold;">${Math.round((arrivedCount/totalFlights)*100)}%</div></div>
+                    <div style="text-align: right;"><div style="font-size: 0.7rem; opacity: 0.8;">累計マイル</div><div style="font-size: 1.1rem; font-weight: bold; color: var(--gold);">${totalMinutes.toLocaleString()}</div></div>
+                </div>
+            </div>`;
     }
 
     if(displayFlights.length === 0) {
-        list.innerHTML = summaryHtml + `<div style="text-align:center; color:#999; margin-top:50px">
-            ${currentTab === 'upcoming' ? 'これからの予定はありません' : '搭乗履歴はありません'}
-        </div>`;
+        list.innerHTML = summaryHtml + `<div style="text-align:center; color:#999; margin-top:50px">${currentTab === 'upcoming' ? 'これからの予定はありません' : '搭乗履歴はありません'}</div>`;
         return;
     }
 
     // 3. 並び替え
-    displayFlights.sort((a,b) => currentTab === 'upcoming' 
-        ? a.time.localeCompare(b.time) 
-        : b.time.localeCompare(a.time));
-
-    // 4. 描画（ここがエラーの箇所です）
-    // summaryHtml を先頭に置き、その後に各フライトのカードを結合します
-    list.innerHTML = summaryHtml + displayFlights.map(f => {
-        const status = getStatus(f);
-    const canCheckIn = isCheckInOpen(f);
-    const isHistory = (status === 'ARRIVED' || status === 'NOSHOW');
-    
-    // 【追加：日付のフォーマット処理】
-    // データの f.date (2026-02-03) を読み込んで、表示用の文字列（2月3日(火)）を作ります
-    const dateObj = new Date(f.date || new Date());
-    const dateStr = dateObj.toLocaleDateString('ja-JP', { 
-        month: 'short', 
-        day: 'numeric', 
-        weekday: 'short' 
+    displayFlights.sort((a, b) => {
+        // 日付と時刻を結合して正確な比較用オブジェクトを作る
+        const dateTimeA = new Date(`${a.date}T${a.time}`).getTime();
+        const dateTimeB = new Date(`${b.date}T${b.time}`).getTime();
+        
+        if (currentTab === 'upcoming') {
+            // 【Upcoming】出発が近いもの（時刻が早い順）を上に
+            return dateTimeA - dateTimeB;
+        } else {
+            // 【History】最近乗ったもの（時刻が遅い順）を上に
+            return dateTimeB - dateTimeA;
+        }
     });
 
-    const [h, m] = f.time.split(':').map(Number);
-    // 日付も考慮して到着時刻を計算
-    const depDate = new Date(dateObj); 
-    depDate.setHours(h, m, 0, 0);
-    const arrDate = new Date(depDate.getTime() + f.duration * 60000);
-    const arrTimeStr = arrDate.getHours().toString().padStart(2,'0') + ':' + arrDate.getMinutes().toString().padStart(2,'0');
+    // 4. 描画
+    // 4. 描画
+    list.innerHTML = summaryHtml + displayFlights.map(f => {
+        const status = getStatus(f);
+        const canCheckIn = isCheckInOpen(f);
+        const isHistory = (status === 'ARRIVED' || status === 'NOSHOW');
         
+        const dateObj = new Date(f.date || new Date());
+        const dateStr = dateObj.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' });
+        const [h, m] = f.time.split(':').map(Number);
+        const depDate = new Date(dateObj); depDate.setHours(h, m, 0, 0);
+        const arrDate = new Date(depDate.getTime() + f.duration * 60000);
+        const arrTimeStr = arrDate.getHours().toString().padStart(2,'0') + ':' + arrDate.getMinutes().toString().padStart(2,'0');
+        const bgClass = getBgClass(f.time);
+        const skyClass = bgClass.replace('bg-', 'sky-');
+
+        let inflightExtra = "";
+        if (status === 'INFLIGHT') {
+            inflightExtra = `
+                <div class="airplane-window">
+                    <div class="sky-view ${skyClass}">
+                        <div class="cloud-particle" style="width:50px; height:20px; top:20%;"></div>
+                        <div class="cloud-particle" style="width:70px; height:25px; top:50%; animation-delay:-5s;"></div>
+                        <div class="cloud-particle" style="width:40px; height:15px; top:75%; animation-delay:-10s;"></div>
+                    </div>
+                </div>
+                <div style="text-align:center; font-size:0.6rem; color:rgba(255,255,255,0.7); margin-bottom:10px;">
+                    Cruising at 35,000ft
+                </div>`;
+        }
+
+        const priorityGroup = (f.boardingClass === 'FIRST') ? 1 : (f.boardingClass === 'BUSINESS') ? 2 : 3;
+        const gateLabel = f.from.charAt(0).toUpperCase() + (String(f.id).slice(-1));
+        const getWorkStyle = (seat) => {
+            if (!seat || seat === 'ANY') return 'Style: Undefined';
+            const letter = seat.slice(-1);
+            if (['A', 'K'].includes(letter)) return 'Deep（集中）';
+            if (['C', 'H'].includes(letter)) return 'Light（気軽）';
+            return 'Normal（標準）';
+        };
+
+        // --- 進捗バーの計算 ---
+        let progressHtml = '';
+        if (f.checkedIn && !isHistory) {
+            const now = new Date().getTime();
+            const totalDuration = f.duration * 60000;
+            const elapsed = now - depDate.getTime();
+            const percent = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+
+            // 景色の定義
+            let windowContent = '';
+            if (status === 'INFLIGHT') {
+                // 【飛行中】上空の景色
+                windowContent = `
+                    <div class="sky-view ${skyClass}" style="width:100%; height:100%;">
+                        <div class="cloud-particle" style="top:25%; width:30px; height:10px; left:10%;"></div>
+                        <div class="cloud-particle" style="top:55%; width:40px; height:15px; left:40%; animation-delay:-5s;"></div>
+                    </div>`;
+            } else {
+                // 【出発前】深みのある地上の景色
+                windowContent = `
+                    <div style="width: 100%; height: 100%; background: linear-gradient(to bottom, 
+                        #4a90e2 0%,      /* 空の高いところ */
+                        #87ceeb 45%,     /* 地平線付近の明るい空 */
+                        #cfe2f3 54%,     /* 地平線の霞み */
+                        #7da438 56%,     /* 遠くの緑（少し薄い） */
+                        #5a8226 100%     /* 手前の緑（濃い） */
+                    );">
+                        <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%); pointer-events:none;"></div>
+                    </div>`;
+            }
+
+            // 演出：出発の瞬間（0%〜2.5%）はシェードを閉じる(0%)、それ以外は開ける(-100%)
+            const shadeTransform = (status === 'INFLIGHT' && percent < 2.5) 
+                                   ? 'translateY(0%)' 
+                                   : 'translateY(-100%)';
+
+            progressHtml = `
+                <div class="flight-main-content" style="display: flex; flex-direction: column; align-items: center; margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 12px;">
+                    <div class="card-window-wrapper" style="width: 60px; height: 80px; background: #000; border: 4px solid #e0e0e0; border-radius: 25px; position: relative; overflow: hidden; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                        <div class="card-window-shade" style="
+                            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                            background: linear-gradient(to bottom, #e0e0e0 0%, #b0b0b0 100%);
+                            border-bottom: 3px solid #888; z-index: 5;
+                            transition: transform 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+                            transform: ${shadeTransform};
+                        ">
+                            <div style="width:100%; height:100%; opacity:0.1; background: repeating-linear-gradient(0deg, transparent, transparent 4px, #000 5px);"></div>
+                        </div>
+                        <div class="window-view-container" style="width:100%; height:100%;">
+                            ${windowContent}
+                        </div>
+                    </div>
+                    
+                    <div style="width: 100%; margin-top: 12px;">
+                        <div class="progress-container" style="width:100%; height:4px; background: rgba(255,255,255,0.2); border-radius:2px; position:relative;">
+                            <div class="progress-bar" style="width: ${percent}%; height:100%; background: white;"></div>
+                            <div class="progress-plane" style="position:absolute; left: ${percent}%; top:-8px; transform:translateX(-50%); color: white; font-size:12px;">✈</div>
+                        </div>
+                    </div>
+                </div>`;
+        }
 
         return `
-        <div class="flight-card ${isHistory ? 'history' : ''}" data-id="${f.id}">
-            ${status === 'NOSHOW' ? '<div class="noshow-overlay"><div class="noshow-stamp">NO SHOW</div></div>' : ''}
-            ${status === 'ARRIVED' ? '<div class="noshow-overlay"><div class="noshow-stamp" style="border-color:var(--gold); color:var(--gold);">ARRIVED</div></div>' : ''}
-            
-            <div class="card-inner">
-                <div style="font-size: 0.75rem; color: var(--ana-blue-main); font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
-                    <span style="font-size: 0.9rem;">📅</span> ${dateStr}
-                </div>
-
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <span class="status-badge badge-${status.toLowerCase()}">${status}</span>
-                    <span style="font-size:0.8rem; color:#999">#${String(f.id).slice(-4)}</span>
-                </div>
-                    
+            <div class="flight-card ${isHistory ? 'history' : ''} dynamic-bg ${bgClass}" data-id="${f.id}">
+                ${status === 'NOSHOW' ? '<div class="noshow-overlay"><div class="noshow-stamp">NO SHOW</div></div>' : ''}
+                ${status === 'ARRIVED' ? '<div class="noshow-overlay"><div class="noshow-stamp" style="border-color:var(--gold); color:var(--gold);">ARRIVED</div></div>' : ''}
+                
+                <div class="card-inner">
+                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.9); font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 0.9rem;">📅</span> ${dateStr}
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span class="status-badge badge-${status.toLowerCase()}">${status}</span>
+                        <span style="font-size:0.8rem; color:rgba(255,255,255,0.5)">#${String(f.id).slice(-4)}</span>
+                    </div>
                     <div class="route-row">
-                        <div class="city-box"><div class="city-code">${f.from}</div><div class="city-name">${f.fromName}</div></div>
-                        <div style="color:var(--ana-blue-sky)">✈</div>
-                        <div class="city-box"><div class="city-code">${f.to}</div><div class="city-name">${f.toName}</div></div>
+                        <div class="city-box"><div class="city-code" style="color:white !important;">${f.from}</div><div class="city-name" style="color:rgba(255,255,255,0.8) !important;">${f.fromName}</div></div>
+                        <div style="color:rgba(255,255,255,0.8)">✈</div>
+                        <div class="city-box"><div class="city-code" style="color:white !important;">${f.to}</div><div class="city-name" style="color:rgba(255,255,255,0.8) !important;">${f.toName}</div></div>
                     </div>
+                    <div class="time-row" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">DEP</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${f.time}</div></div>
+                        <div class="duration-center" style="color:rgba(255,255,255,0.6)">⎯ ${f.duration}m ⎯</div>
+                        <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">ARR</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${arrTimeStr}</div></div>
+                    </div>
+                    
 
-                    <div class="time-row">
-                        <div class="time-box"><div class="time-label">DEP</div><div class="time-value">${f.time}</div></div>
-                        <div class="duration-center">⎯ ${f.duration}min ⎯</div>
-                        <div class="time-box"><div class="time-label">ARR</div><div class="time-value">${arrTimeStr}</div></div>
-                    </div>
+                    ${progressHtml}
 
                     ${isHistory ? `
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px dashed #ddd;">
-                            <div style="font-size:0.75rem; font-weight:bold; color:${status === 'ARRIVED' ? 'var(--gold)' : '#999'}">
-                                ${status === 'ARRIVED' ? `+${f.duration} MILES` : '0 MILES (NO SHOW)'}
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.3);">
+                            <div style="font-size:0.75rem; font-weight:bold; color:${status === 'ARRIVED' ? 'var(--gold)' : 'rgba(255,255,255,0.5)'}">
+                                ${status === 'ARRIVED' ? `1. LOGGED: +${f.duration} MILES` : '0 MILES (NO SHOW)'}
                             </div>
-                            <button onclick='repeatFlight(${JSON.stringify(f)})' 
-                                    style="background: var(--ana-blue-main); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0, 68, 130, 0.3); position: relative; z-index: 10;">
-                                再予約 ✈
-                            </button>
-                        </div>
-                    ` : ''}
+                            <button onclick='repeatFlight(${JSON.stringify(f)})' style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; cursor: pointer;">再予約 ✈</button>
+                        </div>` : ''}
 
                     ${(status === 'RESERVED' && currentTab === 'upcoming') ? getCheckInUI(f, canCheckIn) : ''}
+                    ${(status === 'CHECKEDIN' && currentTab === 'upcoming') ? `<div style="text-align:center; color:white; font-size:0.8rem; margin-top:10px; font-weight:bold;">✓ チェックイン済み</div>` : ''}
                 </div>
 
                 ${(f.checkedIn && !isHistory) ? `
-    <button class="toggle-pass-btn" onclick="toggleBoardingPass(this)">
-        搭乗券を表示
-    </button>
-    <div class="boarding-pass-container">
-        <div class="boarding-pass">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                <div>
-                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">BOARDING PASS</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--ana-blue-main);">${f.from} → ${f.to}</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">CLASS</div>
-                    <div style="font-size: 0.9rem; font-weight: bold;">${f.boardingClass || 'ECONOMY'}</div>
-                </div>
-            </div>
+                    <button class="toggle-pass-btn" onclick="toggleBoardingPass(this)" style="background: rgba(255,255,255,0.15); border: 1px dashed rgba(255,255,255,0.5); color: white;">搭乗券を表示</button>
+                    <div class="boarding-pass-container">
+                        <div class="boarding-pass">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                                <div>
+                                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">TASK LOCATION</div>
+                                    <div style="font-size: 1.2rem; font-weight: bold; color: var(--ana-blue-main);">${f.fromName} → ${f.toName}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">TASK CLASS</div>
+                                    <div style="font-size: 0.9rem; font-weight: bold;">${f.boardingClass || 'ECONOMY'}</div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; padding: 10px 0 20px 0;">
+                                <div style="font-size: 0.65rem; color: #888; font-weight: bold;">ASSIGNED WORK STYLE</div>
+                                <div style="font-size: 1.3rem; font-weight: bold; color: var(--ana-blue-main); line-height: 1.2;">
+                                    ${getWorkStyle(f.seat)}<br>
+                                    <span style="font-size: 0.8rem; color: #888; font-weight: normal;">SEAT: ${f.seat}</span>
+                                </div>
+                            </div>
 
-            <div style="text-align: center; padding: 10px 0 20px 0;">
-                <div style="font-size: 0.65rem; color: #888; font-weight: bold;">ASSIGNED SEAT</div>
-                <div style="font-size: 2.8rem; font-weight: bold; color: var(--ana-blue-main); line-height: 1;">${f.seat}</div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: center; border-top: 1px dashed #ccc; padding-top: 20px;">
-                <div>
-                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">GROUP</div>
-                    <div style="font-size: 1.2rem; font-weight: bold;"><span style="background: #000; color: #fff; padding: 2px 8px; border-radius: 4px;">3</span></div>
-                </div>
-                <div>
-                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">GATE</div>
-                    <div style="font-size: 1.2rem; font-weight: bold;">T1</div>
-                </div>
-            </div>
-            
-            <div style="margin-top: 20px; text-align: center; font-size: 0.65rem; color: #666; background: #f9f9f9; padding: 10px; border-radius: 6px;">
-                出発時刻の<strong>20分前</strong>までに保安検査場をご通過ください
-            </div>
-        </div>
-    </div>
-        ` : ''}
-            </div>
-        `;
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: center; border-top: 1px dashed #ccc; padding-top: 20px;">
+                                <div>
+                                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">PRIORITY</div>
+                                    <div style="font-size: 1.2rem; font-weight: bold;"><span style="background: #000; color: #fff; padding: 2px 8px; border-radius: 4px;">${priorityGroup}</span></div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.65rem; color: #888; font-weight: bold;">GATE (SPOT)</div>
+                                    <div style="font-size: 1.2rem; font-weight: bold;">${gateLabel}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>` : ''}
+            </div>`;
     }).join('');
 }
 
@@ -812,38 +1040,49 @@
     }
 
     function saveFlight() {
-    const fromCode = document.getElementById('fromSelect').value;
-    const toCode = document.getElementById('toSelect').value;
-    const dateVal = document.getElementById('dateInput').value; // 追加
-    const fromAp = airports.find(a => a.code === fromCode);
-    const toAp = airports.find(a => a.code === toCode);
-    
-    const f = {
-        id: Date.now(),
-        date: dateVal || new Date().toISOString().split('T')[0], // 追加
-        from: fromCode, 
-        fromName: fromAp ? fromAp.name : '',
-        to: toCode, 
-        toName: toAp ? toAp.name : '',
-        time: document.getElementById('timeInput').value,
-        duration: parseInt(document.getElementById('durationInput').value) || 60,
-        seat: tempSeat || 'ANY',
-        boardingClass: document.getElementById('classSelect').value,
-        checkedIn: false
-    };
-    
-    if(!f.time || !f.date) return alert('日付と時刻を入力してください');
-    
-    flights.push(f);
-    localStorage.setItem('ana_flights_final', JSON.stringify(flights));
-    closeModal('newFlightModal');
-    render();
-}
+        // HTMLのIDと一致させる (dateInput → flightDate)
+        const fromCode = document.getElementById('fromSelect').value;
+        const toCode = document.getElementById('toSelect').value;
+        const dateVal = document.getElementById('flightDate').value; 
+        const timeVal = document.getElementById('timeInput').value;
+        const durationVal = parseInt(document.getElementById('durationInput').value) || 60;
+        const classVal = document.getElementById('classSelect').value;
+
+        const fromAp = airports.find(a => a.code === fromCode);
+        const toAp = airports.find(a => a.code === toCode);
+        
+        // バリデーション
+        if (!dateVal || !timeVal) {
+            alert('日付と時刻を入力してください');
+            return;
+        }
+        
+        const f = {
+            id: Date.now(),
+            date: dateVal,
+            from: fromCode, 
+            fromName: fromAp ? fromAp.name : '',
+            to: toCode, 
+            toName: toAp ? toAp.name : '',
+            time: timeVal,
+            duration: durationVal,
+            seat: tempSeat || 'ANY',
+            boardingClass: classVal,
+            checkedIn: false
+        };
+        
+        flights.push(f);
+        localStorage.setItem('ana_flights_final', JSON.stringify(flights));
+        closeModal('newFlightModal');
+        render();
+    }
 
     function initSeatMap() {
         const grid = document.getElementById('seatGrid'); 
         grid.innerHTML = '';
-        const selectedClass = document.getElementById('classSelect').value;
+
+    const selectedClass = document.getElementById('classSelect').value;
+
         for (let r = 1; r <= 20; r++) {
             let rowClass = (r <= 2) ? 'FIRST' : (r <= 7) ? 'BUSINESS' : 'ECONOMY';
             const isLocked = (rowClass !== selectedClass);
@@ -858,22 +1097,36 @@
     }
 
     function createSeat(container, r, c, isLocked, rowClass) {
-        const s = document.createElement('div'); 
-        s.className = 'seat'; s.innerText = c;
-        if (rowClass === 'FIRST') s.style.borderColor = "var(--diamond)";
-        if (rowClass === 'BUSINESS') s.style.borderColor = "var(--ana-blue-sky)";
-        if (isLocked) {
-            s.style.cursor = 'not-allowed';
-            s.style.background = '#ddd';
-        } else {
-            s.onclick = () => { 
-                document.querySelectorAll('.seat').forEach(x => x.classList.remove('selected')); 
-                s.classList.add('selected'); 
-                tempSeat = r + c; 
-            };
-        }
-        container.appendChild(s);
+    const s = document.createElement('div'); 
+    s.className = 'seat'; 
+    
+    // スタイル判定
+    let styleLabel = "";
+    if (['A', 'K'].includes(c)) styleLabel = "Deep";
+    else if (['C', 'H'].includes(c)) styleLabel = "Light";
+    else styleLabel = "Normal"; // または Routine
+
+    s.innerHTML = `
+        <div style="font-size:0.9rem; font-weight:bold;">${c}</div>
+        <div style="font-size:0.5rem; opacity:0.7;">${styleLabel}</div>
+    `;
+
+    if (rowClass === 'FIRST') s.style.borderColor = "var(--diamond)";
+    if (rowClass === 'BUSINESS') s.style.borderColor = "var(--ana-blue-sky)";
+
+    if (isLocked) {
+        s.style.cursor = 'not-allowed';
+        s.style.background = '#ddd';
+        s.style.opacity = '0.5';
+    } else {
+        s.onclick = () => { 
+            document.querySelectorAll('.seat').forEach(x => x.classList.remove('selected')); 
+            s.classList.add('selected'); 
+            tempSeat = r + c; 
+        };
     }
+    container.appendChild(s);
+}
 
     function requestNotification() {
         if (!("Notification" in window)) return alert("非対応ブラウザです");
@@ -939,24 +1192,22 @@
     setInterval(mainLoop, 10000);
 
     function repeatFlight(f) {
-    // タブを「予定」に切り替え
     switchTab('upcoming');
-    
-    // 新規予約モーダルを開く
     openNewFlightModal();
     
-    // データを流し込む
     setTimeout(() => {
         document.getElementById('fromSelect').value = f.from;
         document.getElementById('toSelect').value = f.to;
         document.getElementById('durationInput').value = f.duration;
         document.getElementById('classSelect').value = f.boardingClass || 'ECONOMY';
         
-        // 前回の座席をヒントとして表示
+        // IDを修正: dateInput → flightDate
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('flightDate').value = today; 
+        
         tempSeat = null;
         document.getElementById('seatLabel').innerText = `未指定 (前回: ${f.seat})`;
         
-        // 時刻は現在の10分後をデフォルトにする
         const now = new Date();
         now.setMinutes(now.getMinutes() + 10);
         const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
@@ -993,6 +1244,14 @@ function closeAllPasses() {
         btn.parentElement.style.zIndex = "";
     });
     document.getElementById('focusOverlay').classList.remove('active');
+}
+
+function getBgClass(timeStr) {
+    const hour = parseInt(timeStr.split(':')[0]);
+    if (hour >= 5 && hour < 10) return 'bg-dawn';   // 5:00 - 9:59
+    if (hour >= 10 && hour < 16) return 'bg-day';   // 10:00 - 15:59
+    if (hour >= 16 && hour < 19) return 'bg-sunset'; // 16:00 - 18:59
+    return 'bg-night';                               // それ以外（夜）
 }
 </script>
 
