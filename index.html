@@ -643,17 +643,21 @@
 
 /* 外枠：機体の壁面 */
 .window-outer-frame {
-    width: 300px;
-    height: 400px;
+    width: 320px;
+    height: 440px;
     margin: 0 auto;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 120px;
-    padding: 15px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    /* 航空機の内壁のようなオフホワイト */
+    background: #f1f3f5; 
+    border-radius: 130px;
+    padding: 20px;
+    /* 窓が壁に埋め込まれているような深みのある影 */
+    box-shadow: 
+        0 30px 60px rgba(0,0,0,0.3),
+        inset 0 2px 10px rgba(255,255,255,0.8);
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid #d1d5db;
 }
 
 /* 窓枠の内側：奥行き */
@@ -720,6 +724,94 @@
     border-radius: 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
+
+#focusModeScreen {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    
+    /* デフォルト：明るい機内の色 */
+    background: radial-gradient(circle at center, #e6e9ed 0%, #bdc3c7 100%);
+    
+    /* 常にザラついた質感を出すための画像（あれば） */
+    /* background-image: url('...'); */
+    
+    z-index: 9999;
+    display: none; /* 通常は非表示 */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+    /* 色がゆっくり変わるようにアニメーションを設定 */
+    transition: background 1.5s ease;
+}
+
+#focusContent::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0.03;
+    pointer-events: none;
+    background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+}
+
+#focusModeScreen.active {
+    display: flex;
+}
+
+#focus-window-body {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#focus-timer-text {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.2); /* わずかに背景を暗くして浮かび上がらせる */
+    padding: 5px 15px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+/* 飛行ルート（都市名）の強調 */
+.focus-route {
+    font-size: 2.2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-top: 30px;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.7));
+}
+
+.info-glass-panel {
+    background: rgba(0, 0, 0, 0.3); /* 薄い黒の背景 */
+    backdrop-filter: blur(8px);    /* ★ここが重要：背景をぼかす */
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 320px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* 文字にしっかりとした影を追加 */
+.focus-text-bold {
+    color: white;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+}
+
+/* ルート情報の文字をさらに強調 */
+.focus-route {
+    font-size: 2rem;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+/* タイマー文字のスタイル */
+#focus-timer-text {
+    font-size: 1.6rem;
+    color: #ffcc00; /* より視認性の高いゴールドイエロー */
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
     </style>
 </head>
 <body>
@@ -738,7 +830,6 @@
     <div id="announcementBar" class="announcement-bar" style="display:none;">
         <span id="announcementText"></span>
     </div>
-    <button class="focus-exit-btn" onclick="toggleFocusMode()">EXIT FOCUS</button>
     <div id="focusContent" style="text-align: center; width: 100%;"></div>
 </div>
 <div id="focusOverlay" class="focus-overlay" onclick="closeAllPasses()"></div>
@@ -1502,6 +1593,16 @@ function toggleFocusMode() {
 
     if (isFocusMode) {
         const activeFlight = flights.find(f => getStatus(f) === 'INFLIGHT');
+        
+        // テスト用：もし飛行中の便がなければ、強制的にダミーデータで起動させる場合はここをコメントアウト解除
+        /*
+        if (!activeFlight) {
+             alert("現在飛行中のフライトが必要です");
+             isFocusMode = false; return;
+        }
+        */
+        
+        // 本番用チェック（もしダミーを使わないならこのまま）
         if (!activeFlight) {
             alert("現在飛行中のフライトが必要です");
             isFocusMode = false; return;
@@ -1509,9 +1610,9 @@ function toggleFocusMode() {
 
         startCabinNoise();
 
-        // ★修正: 外枠（ボタン）を1回だけ作成
+        // ★修正ポイント：background:#000 を transparent に変更！
         content.innerHTML = `
-            <div id="focus-wrapper" style="position:relative; width:100%; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000;">
+            <div id="focus-wrapper" style="position:relative; width:100%; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background: transparent;">
                 
                 <div id="focus-dynamic-content"></div>
 
@@ -1550,36 +1651,38 @@ function updateFocusUI(f, container) {
         if (hour >= 18 || hour < 6) skyGradient = 'linear-gradient(to bottom, #001a33 0%, #004482 100%)';
 
         container.innerHTML = `
-            <div id="focus-window-body" style="text-align:center; color: white;">
-                <div style="font-size: 0.8rem; letter-spacing: 4px; opacity: 0.6; margin-bottom: 20px;">CRUISING</div>
-                
-                <div class="window-outer-frame">
-                    <div class="window-inner-frame" onclick="toggleShade()">
-                        <div id="window-shade">
-                            <div class="shade-handle"></div>
-                        </div>
-                        <div class="sky-background" style="background: ${skyGradient}; position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;">
-                            <div class="real-cloud" style="top:25%; transform:scale(0.5); animation-duration: 12s; opacity: 0.5;"></div>
-                            <div class="real-cloud" style="top:45%; transform:scale(1.2); animation-duration: 25s; animation-delay: -5s;"></div>
-                            <div class="real-cloud" style="top:75%; transform:scale(1.8); animation-duration: 40s; animation-delay: -15s; filter: blur(12px); opacity: 0.4;"></div>
-                        </div>
-                    </div>
+    <div id="focus-window-body" style="text-align:center;">
+        <div style="font-size: 0.8rem; letter-spacing: 4px; color: white; opacity: 0.9; margin-bottom: 20px; text-shadow: 0 2px 4px black;">CRUISING</div>
+        
+        <div class="window-outer-frame">
+            <div class="window-inner-frame" onclick="toggleShade()" style="position:relative;">
+                <div class="sky-background" style="background: ${skyGradient}; position:absolute; top:0; left:0; width:100%; height:100%; z-index:1;">
+                    <div class="real-cloud" style="top:25%; transform:scale(0.5); animation-duration: 12s; opacity: 0.5;"></div>
+                    <div class="real-cloud" style="top:45%; transform:scale(1.2); animation-duration: 25s; animation-delay: -5s;"></div>
+                    <div class="real-cloud" style="top:75%; transform:scale(1.8); animation-duration: 40s; animation-delay: -15s; filter: blur(12px); opacity: 0.4;"></div>
                 </div>
-
-                <div style="font-size: 2.2rem; font-weight: bold; letter-spacing: 2px; margin-top:30px;">${f.from} ✈ ${f.to}</div>
-
-                <div style="width:300px; height:2px; background:rgba(255,255,255,0.2); margin:30px auto 10px; position:relative; border-radius: 2px;">
-                    <div style="position:absolute; width:100%; height:100%; background-image: linear-gradient(to right, white 50%, transparent 50%); background-size: 20px 100%; opacity: 0.3;"></div>
-                    <div id="focus-plane" style="position:absolute; top:-12px; font-size:18px; transition: left 1s linear; z-index:2;">✈</div>
-                </div>
-                
-                <div id="focus-timer-text" style="font-size: 1.5rem; font-family: monospace; color: var(--gold); font-weight: bold; margin-top:10px;"></div>
-                
-                <div style="font-size: 0.7rem; opacity: 0.5; margin-top: 30px; font-style: italic;">
-                    "Enjoy your flight over the clouds."
+                <div id="window-shade">
+                    <div class="shade-handle"></div>
                 </div>
             </div>
-        `;
+        </div>
+
+        <div class="info-glass-panel">
+            <div class="focus-text-bold focus-route">${f.from} ✈ ${f.to}</div>
+            
+            <div style="width:100%; height:2px; background:rgba(255,255,255,0.2); margin:20px auto; position:relative;">
+                <div style="position:absolute; width:100%; height:100%; background-image: linear-gradient(to right, white 50%, transparent 50%); background-size: 15px 100%; opacity: 0.3;"></div>
+                <div id="focus-plane" style="position:absolute; top:-10px; font-size:16px; transition: left 1s linear; color:white;">✈</div>
+            </div>
+
+            <div id="focus-timer-text"></div>
+        </div>
+
+        <div style="font-size: 0.75rem; color: white; opacity: 0.8; margin-top: 20px; font-style: italic; text-shadow: 0 1px 3px black;">
+            "Enjoy your flight over the clouds."
+        </div>
+    </div>
+`;
     }
 
     // 数値と飛行機の位置を更新
@@ -1592,11 +1695,20 @@ function updateFocusUI(f, container) {
 
 function toggleShade() {
     const shade = document.getElementById('window-shade');
-    if (shade) {
-        shade.classList.toggle('shade-closed');
-        console.log("Shade toggled"); // デバッグ用
+    const screen = document.getElementById('focusModeScreen'); // ★ここを修正
+    
+    if (shade && screen) {
+        const isClosing = shade.classList.toggle('shade-closed');
+        
+        if (isClosing) {
+            // 閉じた時：機内を暗くする（夜間飛行モード）
+            screen.style.background = "radial-gradient(circle at center, #2c3e50 0%, #000 100%)";
+        } else {
+            // 開いた時：機内を明るくする
+            screen.style.background = "radial-gradient(circle at center, #e6e9ed 0%, #bdc3c7 100%)";
+        }
     }
-}   
+}
 
 let audioCtx = null;
 let noiseNode = null;
