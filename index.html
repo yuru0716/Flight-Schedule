@@ -614,6 +614,33 @@
     overflow: hidden; white-space: nowrap;
 }
 
+/* 雲の流れるアニメーション */
+@keyframes cloudFlow {
+    from { left: 120%; }
+    to { left: -120%; }
+}
+
+.real-cloud {
+    position: absolute;
+    width: 100px;
+    height: 30px;
+    background: #fff;
+    border-radius: 50%;
+    filter: blur(8px);
+    opacity: 0.8;
+    animation: cloudFlow linear infinite;
+    box-shadow: 
+        /* 複数の円をずらして重ねることでモコモコ感を出す */
+        40px 10px 0 10px #fff,
+        -30px 5px 0 5px #fff,
+        15px -15px 0 15px #fff;
+}
+
+/* 夜間用の雲の色調整（オプション） */
+.focus-active .real-cloud {
+    background: #ccddee; /* 少し青みがかった白 */
+}
+
     </style>
 </head>
 <body>
@@ -1401,23 +1428,28 @@ function toggleFocusMode() {
             isFocusMode = false; return;
         }
 
-        // --- 修正: 自作ノイズのみを開始 ---
         startCabinNoise();
 
-        announcement.style.display = 'block';
-        announcement.style.opacity = '1'; // 透明度を戻す
-        annText.innerText = "Ladies and gentlemen, welcome onboard. Please fasten your seatbelt for deep work.";
-        setTimeout(() => { announcement.style.opacity = '0'; }, 8000);
+        // ★修正: 外枠（ボタン）を1回だけ作成
+        content.innerHTML = `
+            <div id="focus-wrapper" style="position:relative; width:100%; height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000;">
+                
+                <div id="focus-dynamic-content"></div>
 
-        updateFocusUI(activeFlight, content);
-        window.focusTimer = setInterval(() => updateFocusUI(activeFlight, content), 1000);
+                <button onclick="toggleFocusMode()" style="margin-top:40px; background:rgba(255,255,255,0.1); border:1px solid #fff; color:#fff; padding:12px 30px; border-radius:30px; font-weight:bold; cursor:pointer; z-index:10000;">
+                    CLOSE WINDOW
+                </button>
+            </div>
+        `;
+
+        const dynamicPart = document.getElementById('focus-dynamic-content');
+        updateFocusUI(activeFlight, dynamicPart);
+        window.focusTimer = setInterval(() => updateFocusUI(activeFlight, dynamicPart), 1000);
 
         screen.classList.add('active');
         document.body.classList.add('focus-active');
     } else {
-        // --- 修正: 停止処理 ---
         stopCabinNoise();
-        
         clearInterval(window.focusTimer);
         screen.classList.remove('active');
         document.body.classList.remove('focus-active');
@@ -1433,27 +1465,38 @@ function updateFocusUI(f, container) {
     const percent = Math.min(Math.max((elapsed / totalMs) * 100, 0), 100);
     const remainingMins = Math.max(0, f.duration - Math.floor(elapsed / 60000));
 
-    container.innerHTML = `
-        <div style="font-size: 0.8rem; letter-spacing: 4px; opacity: 0.6; margin-bottom: 20px;">CRUISING</div>
-        <div class="card-window-wrapper" style="width: 280px; height: 380px; margin: 0 auto 30px; border-radius: 110px;">
-            <div class="card-window-shade" style="transform: translateY(-300%);"></div>
-            <div class="sky-view sky-day" style="width:100%; height:100%;">
-                <div class="cloud-particle" style="top:20%; width:40px; height:12px; animation-duration: 8s;"></div>
+    if (!document.getElementById('focus-window-body')) {
+        const hour = new Date().getHours();
+        let skyGradient = 'linear-gradient(to bottom, #1e90ff 0%, #87ceeb 100%)'; 
+        if (hour >= 18 || hour < 6) {
+            skyGradient = 'linear-gradient(to bottom, #001a33 0%, #004482 100%)';
+        }
+
+        container.innerHTML = `
+            <div id="focus-window-body" style="text-align:center; color: white;">
+                <div style="font-size: 0.8rem; letter-spacing: 4px; opacity: 0.6; margin-bottom: 20px;">CRUISING</div>
+                
+                <div class="card-window-wrapper" style="width: 280px; height: 380px; margin: 0 auto 30px; border-radius: 110px; border: 12px solid #e0e0e0; position:relative; overflow:hidden; background: ${skyGradient}; box-shadow: inset 0 0 60px rgba(0,0,0,0.4);">
+                    <div style="width:100%; height:100%; position:relative;">
+                        <div class="real-cloud" style="top:25%; transform:scale(0.5); animation-duration: 12s; opacity: 0.5;"></div>
+                        <div class="real-cloud" style="top:45%; transform:scale(1.2); animation-duration: 25s; animation-delay: -5s;"></div>
+                        <div class="real-cloud" style="top:75%; transform:scale(1.8); animation-duration: 40s; animation-delay: -15s; filter: blur(12px); opacity: 0.4;"></div>
+                    </div>
+                </div>
+
+                <div style="font-size: 2.5rem; font-weight: bold; letter-spacing: 2px;">${f.from} ✈ ${f.to}</div>
+                <div style="width:300px; height:4px; background:rgba(255,255,255,0.2); margin:25px auto; position:relative; border-radius: 2px;">
+                    <div id="focus-plane" style="position:absolute; top:-8px; font-size:14px; transition: left 1s linear;">✈</div>
+                </div>
+                <div id="focus-timer-text" style="font-size: 1.8rem; font-family: monospace; color: var(--gold); font-weight: bold;"></div>
             </div>
-        </div>
-        <div style="font-size: 2.5rem; font-weight: bold; letter-spacing: 2px;">${f.from} ✈ ${f.to}</div>
-        
-        <div class="runway-loader">
-            <div class="plane-icon-progress" style="left: ${percent}%;">✈</div>
-        </div>
-        
-        <div style="font-size: 1.5rem; font-family: monospace; color: var(--gold); margin-top: 10px;">
-            到着まで: ${remainingMins} 分
-        </div>
-        <div style="font-size: 0.7rem; opacity: 0.5; margin-top: 40px; font-style: italic;">
-            "Enjoy your focused flight our flight."
-        </div>
-    `;
+        `;
+    }
+
+    const plane = document.getElementById('focus-plane');
+    if (plane) plane.style.left = `${percent}%`;
+    const timerText = document.getElementById('focus-timer-text');
+    if (timerText) timerText.innerText = `到着まで: ${remainingMins} 分`;
 }
 
 let audioCtx = null;
