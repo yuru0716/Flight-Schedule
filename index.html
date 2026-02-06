@@ -838,6 +838,280 @@
         transform: scale(0.75);
     }
 }
+
+/* リアルな空のレイヤー */
+.sky.bg-day {
+    background: linear-gradient(to bottom, #003366 0%, #0076cb 60%, #add8e6 100%);
+}
+.sky.bg-night {
+    background: linear-gradient(to bottom, #00050a 0%, #001a33 70%, #003366 100%);
+}
+.sky.bg-morning {
+    background: linear-gradient(to bottom, #001a33 0%, #4b0082 40%, #ff8c00 80%, #ffd700 100%);
+}
+.sky.bg-evening {
+    background: linear-gradient(to bottom, #001a33 0%, #800080 30%, #ff4500 70%, #ff8c00 100%);
+}
+
+/* 窓の奥行き感を出すガラスの反射 */
+.window-frame::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.05) 100%);
+    pointer-events: none;
+    border-radius: 40% 40% 45% 45%;
+}
+
+.focus-note-container {
+    position: absolute;
+    bottom: 40px;
+    width: 80%;
+    max-width: 500px;
+    background: rgba(255, 255, 255, 0.9); /* 半透明の紙質 */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.note-header {
+    background: var(--ana-blue-dark);
+    color: white;
+    padding: 8px 15px;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    letter-spacing: 1px;
+}
+
+#focus-textarea {
+    width: 100%;
+    height: 150px;
+    padding: 15px;
+    border: none;
+    background: repeating-linear-gradient(white, white 24px, #e5e5e5 25px); /* 罫線 */
+    line-height: 25px;
+    font-family: inherit;
+    resize: none;
+    color: var(--text-main);
+    outline: none;
+}
+
+#toggle-note {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    font-size: 10px;
+    cursor: pointer;
+    padding: 2px 5px;
+}
+
+/* 最小化状態 */
+.focus-note-container.minimized {
+    height: 35px;
+}
+.focus-note-container.minimized #focus-textarea {
+    display: none;
+}
+
+/* レイアウトの基本設定 */
+.focus-layout-container {
+    display: flex;
+    flex-direction: row; /* PCは横並び */
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 30px;
+    padding: 20px;
+}
+
+.focus-window-area {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+#focus-note-panel {
+    width: 350px; /* PCでの幅 */
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#focus-textarea-box {
+    flex: 1;
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    color: white;
+    padding: 15px;
+    font-size: 1rem;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+}
+
+/* スマホ用スタイル (1024px以下) */
+@media screen and (max-width: 1024px) {
+    .focus-layout-container {
+        flex-direction: column;
+    }
+
+    #focus-note-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 10000;
+        border-radius: 0;
+        transform: translateY(100%); /* 最初は下に隠す */
+        opacity: 0;
+        display: none;
+    }
+
+    #focus-note-panel.memo-open {
+        display: flex;
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .mobile-memo-trigger {
+        position: fixed;
+        bottom: 100px;
+        right: 20px;
+        background: var(--ana-gradient);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        z-index: 9999;
+    }
+
+    .mobile-only-btn {
+        background: white;
+        color: var(--ana-blue-dark);
+        border: none;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+}
+
+/* PCではスマホ用ボタンを隠す */
+@media screen and (min-width: 1025px) {
+    .mobile-memo-trigger, .mobile-only-btn {
+        display: none;
+    }
+}
+
+/* レイアウトの外枠：中央寄せ用 */
+.focus-layout-outer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.focus-layout-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 90%;
+    max-width: 1000px; /* ここを調整して窓とメモの距離を縮める */
+    gap: 40px; /* 窓とメモ帳の間の距離 */
+    padding: 20px;
+}
+
+.focus-window-area {
+    flex: 0 0 auto; /* 窓のサイズを固定気味にする */
+}
+
+#focus-note-panel {
+    flex: 1; /* メモ帳が残りのスペースを埋める */
+    max-width: 450px; /* メモ帳が大きくなりすぎないように */
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#focus-textarea-box {
+    flex: 1;
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    color: white;
+    padding: 15px;
+    font-size: 1rem;
+    line-height: 1.6;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* スマホ用設定 (1024px以下) */
+@media screen and (max-width: 1024px) {
+    .focus-layout-container {
+        flex-direction: column;
+        width: 100%;
+        max-width: none;
+        gap: 0;
+    }
+
+    #focus-note-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        z-index: 10000;
+        border-radius: 0;
+        transform: translateY(100%);
+        opacity: 0;
+        display: none;
+    }
+
+    #focus-note-panel.memo-open {
+        display: flex;
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .mobile-memo-trigger {
+        position: fixed;
+        bottom: 40px;
+        right: 20px;
+        background: var(--ana-gradient);
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        z-index: 9999;
+        font-weight: bold;
+    }
+}
+
+/* PC用ボタン非表示 */
+@media screen and (min-width: 1025px) {
+    .mobile-memo-trigger, .mobile-only-btn {
+        display: none;
+    }
+}
     </style>
 </head>
 <body>
@@ -853,10 +1127,25 @@
     <audio id="cabinNoise" loop src="https://www.soundjay.com/transportation/airplane-cabin-white-noise-01.mp3"></audio>
 
 <div id="focusModeScreen" class="focus-overlay-screen">
-    <div id="announcementBar" class="announcement-bar" style="display:none;">
-        <span id="announcementText"></span>
+    <button class="focus-exit-btn" onclick="exitFocusMode()">Exit</button>
+    
+    <div class="focus-layout-outer">
+        <div class="focus-layout-container">
+            <div id="focusContent" class="focus-window-area"></div>
+
+            <div id="focus-note-panel" class="info-glass-panel">
+                <div class="memo-header">
+                    <span class="focus-text-bold">INFLIGHT MEMO</span>
+                    <button id="close-memo-mobile" class="mobile-only-btn" onclick="toggleMobileMemo()">Done</button>
+                </div>
+                <textarea id="focus-textarea-box" placeholder="機内でのひらめきをメモ..."></textarea>
+            </div>
+        </div>
     </div>
-    <div id="focusContent" style="text-align: center; width: 100%;"></div>
+
+    <button id="open-memo-mobile" class="mobile-memo-trigger" onclick="toggleMobileMemo()">
+        ✎ Memo
+    </button>
 </div>
 <div id="focusOverlay" class="focus-overlay" onclick="closeAllPasses()"></div>
 <div id="qrModal" class="modal" onclick="this.style.display='none'">
@@ -889,8 +1178,8 @@
 <div class="container" id="flightList"></div>
 
 <button class="fab" onclick="openNewFlightModal()">+</button>
-<button onclick="startScan()" style="background:var(--ana-blue-main); color:white; border:none; padding:10px 15px; border-radius:20px; font-weight:bold;">
-    📷 QRスキャン
+<button onclick="startScan()" style="position: fixed; bottom: 30px; left: 25px; width: 65px; height: 65px; background: var(--ana-gradient); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.2rem; box-shadow: 0 8px 20px rgba(0,68,130,0.4); border: none; cursor: pointer; z-index: 90; ">
+    📷
 </button>
 
 <div id="newFlightModal" class="modal">
@@ -1182,6 +1471,27 @@
         const bgClass = getBgClass(f.time);
         const skyClass = bgClass.replace('bg-', 'sky-');
 
+        // --- カウントダウンの計算 ---
+        let countdownHtml = '';
+        if (status === 'RESERVED' || status === 'CHECKEDIN') {
+            const now = new Date();
+            const diffMs = depDate - now; // 出発までのミリ秒
+            
+            if (diffMs > 0) {
+                const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                let countdownText = diffHrs > 0 ? `${diffHrs}h${diffMins}m` : `${diffMins}m`;
+                
+                countdownHtml = `
+                    <div style="background: rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span style="font-size: 0.7rem; letter-spacing: 1px; opacity: 0.8;">DEPARTURE IN</span>
+                        <span style="font-size: 0.9rem; font-weight: bold; color: var(--diamond);">${countdownText}</span>
+                    </div>
+                `;
+            }
+        }
+
         let inflightExtra = "";
         if (status === 'INFLIGHT') {
             inflightExtra = `
@@ -1209,15 +1519,49 @@
 
         // --- 進捗バーの計算 ---
         let progressHtml = '';
+        let telemetryHtml = '';
         if (f.checkedIn && !isHistory) {
             const now = new Date().getTime();
             const totalDuration = f.duration * 60000;
             const elapsed = now - depDate.getTime();
             const percent = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
 
+            // --- 高度と速度のシミュレーションロジック ---
+            let altitude = 0;
+            let speed = 0;
+
             // 景色の定義
             let windowContent = '';
             if (status === 'INFLIGHT') {
+
+                        if (percent < 15) { 
+                    // 上昇中（最初の15%）
+                    altitude = Math.floor((percent / 15) * 35000);
+                    speed = Math.floor(150 + (percent / 15) * 350); 
+                } else if (percent > 85) { 
+                    // 降下中（最後の15%）
+                    altitude = Math.floor(((100 - percent) / 15) * 35000);
+                    speed = Math.floor(150 + ((100 - percent) / 15) * 350);
+                } else { 
+                    // 巡航中
+                    altitude = 35000 + Math.floor(Math.random() * 100); // 少し揺らぎを出す
+                    speed = 500 + Math.floor(Math.random() * 10);
+                }
+
+                telemetryHtml = `
+            <div style="display: flex; justify-content: space-around; width: 100%; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 0.6rem; opacity: 0.7;">ALTITUDE</div>
+                    <div style="font-size: 0.9rem; font-weight: bold; font-family: monospace;">${altitude.toLocaleString()} <span style="font-size: 0.6rem;">ft</span></div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.6rem; opacity: 0.7;">GROUND SPEED</div>
+                    <div style="font-size: 0.9rem; font-weight: bold; font-family: monospace;">${speed} <span style="font-size: 0.6rem;">kts</span></div>
+                </div>
+            </div>
+        `;
+
+
                 // 【飛行中】上空の景色
                 windowContent = `
                     <div class="sky-view ${skyClass}" style="width:100%; height:100%;">
@@ -1245,27 +1589,13 @@
 
             progressHtml = `
                 <div class="flight-main-content" style="display: flex; flex-direction: column; align-items: center; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 12px;">
-                    <div class="card-window-wrapper" style="width: 100px; height: 130px; background: #000; border: 6px solid #e0e0e0; border-radius: 40px; position: relative; overflow: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,0.5); margin-bottom: 10px;">
-                        <div class="card-window-shade" style="
-                            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-                            background: linear-gradient(to bottom, #e0e0e0 0%, #b0b0b0 100%);
-                            border-bottom: 4px solid #888; z-index: 5;
-                            transition: transform 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95);
-                            transform: ${shadeTransform};
-                        ">
-                            <div style="width:100%; height:100%; opacity:0.1; background: repeating-linear-gradient(0deg, transparent, transparent 4px, #000 5px);"></div>
-                        </div>
-                        <div class="window-view-container" style="width:100%; height:100%;">
-                            ${windowContent}
-                        </div>
-                    </div>
-                    
                     <div style="width: 100%; margin-top: 5px;">
                         <div class="progress-container" style="width:100%; height:4px; background: rgba(255,255,255,0.2); border-radius:2px; position:relative;">
                             <div class="progress-bar" style="width: ${percent}%; height:100%; background: white;"></div>
                             <div class="progress-plane" style="position:absolute; left: ${percent}%; top:-8px; transform:translateX(-50%); color: white; font-size:12px;">✈</div>
                         </div>
                     </div>
+                    ${telemetryHtml}
                 </div>`;
         }
 
@@ -1275,9 +1605,7 @@
         ${status === 'ARRIVED' ? '<div class="noshow-overlay"><div class="noshow-stamp" style="border-color:var(--gold); color:var(--gold);">ARRIVED</div></div>' : ''}
         
         <div class="card-inner">
-            <button onclick="toggleFocusMode()" style="margin-top: 10px; width: 100%; background: rgba(0,0,0,0.8); color: white; border: 1px solid white; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">
-                🔭 集中モード（全画面）を起動
-            </button>
+            <button class="status-badge" onclick="toggleFocusMode(${f.id})" style="margin-top: 10px; width: 100%; background: rgba(0,0,0,0.8); color: white; border: 1px solid white; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">集中モードを起動</button>
             <div style="font-size: 0.75rem; color: rgba(255,255,255,0.9); font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
                 <span style="font-size: 0.9rem;">📅</span> ${dateStr}
             </div>
@@ -1291,7 +1619,7 @@
                 <div class="city-box"><div class="city-code" style="color:white !important;">${f.to}</div><div class="city-name" style="color:rgba(255,255,255,0.8) !important;">${f.toName}</div></div>
             </div>
             <div class="time-row" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);">
-                <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">DEP</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${f.time}</div></div>
+                <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">DEP</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${f.time}${countdownHtml}</div></div>
                 <div class="duration-center" style="color:rgba(255,255,255,0.6)">⎯ ${f.duration}m ⎯</div>
                 <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">ARR</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${arrTimeStr}</div></div>
             </div>
@@ -1927,6 +2255,87 @@ function processAddData(addData) {
     } catch(e) { console.error("Invalid QR Data"); }
 }
 
+setInterval(() => {
+    render();
+}, 30000);
+
+
+// 集中モード用のメモ機能ロジック
+document.addEventListener('DOMContentLoaded', () => {
+    const focusTextarea = document.getElementById('focus-textarea');
+    const toggleNoteBtn = document.getElementById('toggle-note');
+    const noteContainer = document.getElementById('focus-note-container');
+
+    // 1. 保存されたメモを復元
+    const savedNote = localStorage.getItem('ana_inflight_memo');
+    if (savedNote) {
+        focusTextarea.value = savedNote;
+    }
+
+    // 2. 入力するたびに自動保存
+    focusTextarea.addEventListener('input', (e) => {
+        localStorage.setItem('ana_inflight_memo', e.target.value);
+    });
+
+    // 3. メモ帳の表示/非表示切り替え（景色を見たい時用）
+    toggleNoteBtn.addEventListener('click', () => {
+        if (focusTextarea.style.display === 'none') {
+            focusTextarea.style.display = 'block';
+            toggleNoteBtn.textContent = 'Hide';
+            noteContainer.style.height = 'auto';
+        } else {
+            focusTextarea.style.display = 'none';
+            toggleNoteBtn.textContent = 'Show Memo';
+            noteContainer.style.height = '40px';
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const focusMemo = document.getElementById('focus-textarea-box');
+    const toggleBtn = document.getElementById('toggle-note-btn');
+    const memoContainer = document.getElementById('focus-note-container');
+
+    // 1. ローカルストレージから復元
+    const saved = localStorage.getItem('ana_inflight_memo');
+    if (saved) focusMemo.value = saved;
+
+    // 2. 入力するたびに保存
+    focusMemo.addEventListener('input', (e) => {
+        localStorage.setItem('ana_inflight_memo', e.target.value);
+    });
+
+    // 3. 表示・非表示の切り替えロジック
+    toggleBtn.addEventListener('click', () => {
+        if (focusMemo.style.display === 'none') {
+            focusMemo.style.display = 'block';
+            toggleBtn.textContent = 'Hide';
+            memoContainer.style.height = 'auto';
+        } else {
+            focusMemo.style.display = 'none';
+            toggleBtn.textContent = 'Show Memo';
+            memoContainer.style.height = '45px';
+        }
+    });
+});
+
+function toggleMobileMemo() {
+    const panel = document.getElementById('focus-note-panel');
+    panel.classList.toggle('memo-open');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const textarea = document.getElementById('focus-textarea-box');
+    
+    // 保存されたメモを読み込み
+    const saved = localStorage.getItem('ana_inflight_memo');
+    if (saved) textarea.value = saved;
+
+    // 入力ごとに保存
+    textarea.addEventListener('input', (e) => {
+        localStorage.setItem('ana_inflight_memo', e.target.value);
+    });
+});
 </script>
 
 </body>
