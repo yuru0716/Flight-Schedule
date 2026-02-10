@@ -2267,6 +2267,7 @@ let videoStream = null;
 function startScan() {
     const video = document.getElementById("video");
     const modal = document.getElementById("scanModal");
+    document.querySelector('.my-app-bottom-nav').style.display = 'none';
     modal.style.display = "flex";
 
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
@@ -2283,6 +2284,7 @@ function stopScan() {
         videoStream.getTracks().forEach(track => track.stop());
     }
     document.getElementById("scanModal").style.display = "none";
+    document.querySelector('.my-app-bottom-nav').style.display = 'flex';
 }
 
 function tick() {
