@@ -1140,6 +1140,123 @@
 }
 .my-app-plus-circle:active { transform: scale(0.92); }
 .my-app-nav-link-active { color: #333333; font-weight: bold; }
+
+.board {
+    background: rgba(5, 15, 30, 0.9);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 16px;
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,0.6),
+        0 20px 40px rgba(0,0,0,0.8);
+}
+/* 行アイテム */
+.board-row {
+    display: grid;
+    grid-template-columns: 1.3fr 0.8fr 0.8fr 1.1fr 1.8fr;
+    gap: 6px;
+    font-size: 1rem;    /* ほんの少し小さめ */
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    padding: 6px 10px;
+}
+
+/* 見出し行 */
+.board-row.header {
+    color: #94a3b8;
+    text-shadow: 0 0 4px rgba(148,163,184,0.4);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+}
+
+/* 境目なし＋行間すっきり */
+.board-row:not(.header) {
+    border-bottom: 1px solid #111;
+}
+
+/* 自分便は白く */
+.board-row:not(.external) > span {
+    color: #fff;
+}
+
+/* 外部便は薄め */
+.board-row.external > span {
+    color: #777;
+}
+
+/* 状態文字の強調 */
+.board-row span:nth-child(5) {
+    font-weight: bold;
+    text-align: right;
+    letter-spacing: 0.08em;
+}
+
+/* 状態ごとの色 */
+.status-boarding {
+    color: #22c55e;
+    text-shadow: 0 0 6px rgba(34,197,94,0.6);
+}
+
+.status-checkinopen {
+    color: #38bdf8;
+    text-shadow: 0 0 6px rgba(56,189,248,0.6);
+}
+
+.status-lastcall {
+    color: #fb7185;
+    text-shadow: 0 0 6px rgba(251,113,133,0.6);
+}
+
+.status-delayed {
+    color: #f97316;
+    text-shadow: 0 0 6px rgba(249,115,22,0.6);
+}
+
+.status-scheduled  { color: #eee; }
+
+/* ホバーで少し明るく */
+.board-row:hover:not(.header) > span {
+    color: #fff;
+}
+.board-frame {
+    background: linear-gradient(
+        180deg,
+        #0b1d33 0%,
+        #050b14 100%
+    );
+}
+.board-title {
+    background: #1a1a1a;
+    color: #ccc;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-align: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #333;
+    margin-bottom: 6px;
+}
+.board,
+.board-frame,
+.board-row {
+    border-radius: 0 !important;
+}
+.board-row span:nth-child(1) {
+    color: #7dd3fc; /* 空色 */
+    font-weight: bold;
+}
+.board-row span:nth-child(2),
+.board-row span:nth-child(3) {
+    color: #e5e7eb;
+}
+.board-row span:nth-child(4) {
+    color: #facc15; /* 黄 */
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+.board-row:not(.header):hover {
+    background: rgba(56, 189, 248, 0.05);
+}
     </style>
 </head>
 <body>
@@ -1220,6 +1337,7 @@
         <div class="mile-display">✈ <span id="totalMiles">0</span> MILES</div>
     </div>
     <div style="display:flex; gap:15px; align-items:center;">
+        <div class="header-icon" onclick="toggleBoardMode()">🛫</div>
         <span id="notifBtn" onclick="requestNotification()" style="cursor:pointer; font-size:1.2rem; filter:grayscale(1);">🔔</span>
         <div class="header-icon" onclick="openAirportModal()">⚙️</div>
     </div>
@@ -1317,15 +1435,42 @@
     const defaultAirports = [{code: 'HME', name: '自宅'}, {code: 'WRK', name: '仕事'}, {code: 'CFE', name: 'カフェ'}];
     let airports = JSON.parse(localStorage.getItem('my_airports') || JSON.stringify(defaultAirports));
     let flights = JSON.parse(localStorage.getItem('ana_flights_final') || '[]');
+    let externalFlights = [];
+    const EXTERNAL_FLIGHT_TARGET = 12;
     let tempSeat = null;
     let notifiedFlights = new Set();
     let bannerShownFor = new Set();
+    let boardMode = false;
     
     // スワイプ用変数
     let startX = 0;
     let currentX = 0;
     let isDragging = false;
     let currentTab = 'upcoming'; // タブ状態の管理
+
+    const externalFlightsPool = [
+    { airline: 'ANB', code: 'NH', from: 'HND', to: 'ITM' },
+    { airline: 'ANB', code: 'NH', from: 'HND', to: 'NGO' },
+    { airline: 'JAM', code: 'JL', from: 'HND', to: 'FUK' },
+    { airline: 'JAM', code: 'JL', from: 'CTS', to: 'KIX' },
+    { airline: 'JAM', code: 'JL', from: 'HND', to: 'FUK' },
+    { airline: 'SKZ', code: 'BC', from: 'HND', to: 'CTS' },
+    { airline: 'SKZ', code: 'BC', from: 'FUK', to: 'NRT' },
+    { airline: 'Peaci', code: 'MM', from: 'NRT', to: 'OKA' },
+    { airline: 'Jetstas', code: 'GK', from: 'NRT', to: 'KIX' },
+    { airline: 'AIRDP', code: 'HD', from: 'HND', to: 'CTS' }
+];
+    const airportNameMap = {
+    HND: '羽田',
+    NRT: '成田',
+    NGO: '中部',
+    NKM: '小牧',
+    ITM: '伊丹',
+    KIX: '関西',
+    CTS: '新千歳',
+    FUK: '福岡',
+    OKA: '那覇',
+    }
 
     // --- Status & Mile Logic ---
     function getStatusInfo() {
@@ -1465,6 +1610,13 @@
     // --- Render ---
     function render() {
     updateHeader();
+    cleanupFinishedFlights();
+
+        if (boardMode) {
+        renderDepartureBoard();
+        return;
+    }
+
     const list = document.getElementById('flightList');
     
     const displayFlights = flights.filter(f => {
@@ -1472,6 +1624,8 @@
         const isHistory = (status === 'ARRIVED' || status === 'NOSHOW');
         return currentTab === 'upcoming' ? !isHistory : isHistory;
     });
+
+    
 
     let summaryHtml = '';
     if (currentTab === 'history' && displayFlights.length > 0) {
@@ -1787,6 +1941,8 @@
             });
         }
     });
+
+
 
 }
 
@@ -2520,7 +2676,164 @@ function playCheckInBeep() {
     osc1.stop(ctx.currentTime + 3);
     osc2.stop(ctx.currentTime + 3);
 }
+
+function getBoardStatusLabel(f) {
+    const status = getStatus(f);
+    switch (status) {
+        case 'CHECKEDIN': return 'CHECK-IN';
+        case 'INFLIGHT': return 'BOARDING';
+        case 'LASTCALL': return 'LAST CALL';
+        case 'NOSHOW': return 'NO SHOW';
+        default: return 'SCHEDULED';
+    }
+}
+
+
+
+function toggleBoardMode() {
+    boardMode = !boardMode;
+    console.log('boardMode:', boardMode);
+    alert('boardMode=' + boardMode);
+    render();
+}
+
+function renderDepartureBoard() {
+    const list = document.getElementById('flightList');
+    const nowMin = getNowMinutes();
+
+    // ① 時刻を過ぎた外部便を削除
+    externalFlights = externalFlights.filter(
+        f => timeToMinutes(f.time) >= nowMin
+    );
+
+    // ② 減った分を補充
+    replenishExternalFlights();
+
+    // ③ 自分の便 + 外部便を統合
+    const allFlights = [
+        ...flights.map(f => ({
+            flight: getFlightNumber(f),
+            from: f.from,
+            to: f.to,
+            time: f.time,
+            status: getBoardStatusLabel(f),
+            external: false
+        })),
+        ...externalFlights
+    ]
+    // ④ 時刻順
+    .sort((a, b) => timeToMinutes(a.time) - timeToMinutes(b.time));
+
+    list.innerHTML = `
+    <div class="board-frame">
+        <div class="board">
+            <div class="board-title">DEPARTURES</div>
+
+            <div class="board-row header">
+                <span>FLIGHT</span>
+                <span>DEP</span>
+                <span>TO</span>
+                <span>TIME</span>
+                <span>STATUS</span>
+            </div>
+
+            ${allFlights.map(f => `
+                <div class="board-row ${f.external ? 'external' : ''}">
+                    <span>${formatFlightDisplay(f)}</span>
+                    <span>${formatAirport(f.from, f.external)}</span>
+                    <span>${formatAirport(f.to, f.external)}</span>
+                    <span>${f.time}</span>
+                    <span class="status-${f.status.toLowerCase().replace(' ', '')}">
+                        ${f.status}
+                    </span>
+                </div>
+            `).join('')}
+        </div>
+    </div>
+`;
+}
+
+
+
+function cleanupFinishedFlights() {
+    flights = flights.filter(f => {
+        const status = getStatus(f);
+        return status !== 'ARRIVED' && status !== 'NOSHOW';
+    });
+    localStorage.setItem('ana_flights_v5', JSON.stringify(flights));
+}
+
+function getFlightNumber(f) {
+    return 'TA' + String(f.id).slice(-4);
+}
+
+
+function generateExternalFlights(count = 1) {
+    const now = new Date();
+
+    return Array.from({ length: count }).map(() => {
+        const base = externalFlightsPool[
+            Math.floor(Math.random() * externalFlightsPool.length)
+        ];
+
+        const minutesLater = Math.floor(Math.random() * 240) + 5;
+        const dep = new Date(now.getTime() + minutesLater * 60000);
+        const time =
+            dep.getHours().toString().padStart(2, '0') + ':' +
+            dep.getMinutes().toString().padStart(2, '0');
+
+        return {
+            external: true,
+            airline: base.airline,              // ← 追加
+            flight: base.code + (Math.floor(Math.random() * 900) + 100),
+            from: base.from,
+            to: base.to,
+            time,
+            status: ['SCHEDULED', 'BOARDING', 'DELAYED'][
+                Math.floor(Math.random() * 3)
+            ]
+        };
+    });
+}
+
+
+function timeToMinutes(t) {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+}
+
+function getNowMinutes() {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+}
+
+function replenishExternalFlights() {
+    while (externalFlights.length < EXTERNAL_FLIGHT_TARGET) {
+        externalFlights.push(...generateExternalFlights(1));
+    }
+}
+
+function formatFlightDisplay(f) {
+    if (f.external && f.airline) {
+        return `${f.airline} ${f.flight.slice(2)}`;
+    }
+    return f.flight; // TASK Airline 等
+}
+
+function formatAirport(code, isExternal) {
+    if (!isExternal) {
+        return getMyAirportName(code);
+    }
+    return airportNameMap[code] || code;
+}
+
+function getMyAirportName(code) {
+    const a = airports.find(a => a.code === code);
+    return a ? a.name : code;
+}
 </script>
+
+
 
 </body>
 </html>
