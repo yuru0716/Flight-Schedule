@@ -6,6 +6,10 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#002D5A">
     <title>Flight Schedule</title>
+    <link
+	href="https://fonts.googleapis.com/icon?family=Material+Icons"
+	rel="stylesheet"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
@@ -1129,7 +1133,7 @@
 .my-app-nav-icon-text { font-size: 22px; margin-bottom: 2px; }
 .my-app-nav-link-center { position: relative; }
 .my-app-plus-circle {
-    background-color: #333333; color: #ffffff; width: 56px; height: 56px;
+    background-color: #0098f0; color: #ffffff; width: 56px; height: 56px;
     border-radius: 50%; display: flex; justify-content: center; align-items: center;
     font-size: 32px; font-weight: bold; margin-top: -35px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: transform 0.1s;
@@ -1175,27 +1179,27 @@
 
 <nav class="my-app-bottom-nav">
     <a class="my-app-nav-link my-app-nav-link-active" onclick="switchTab('upcoming', this)">
-        <span class="my-app-nav-icon-text">📅</span>
+        <span class="material-icons" class="my-app-nav-icon-text">flight_takeoff</span>
         <span>予定</span>
     </a>
     
     <a class="my-app-nav-link" onclick="switchTab('history', this)">
-        <span class="my-app-nav-icon-text">📜</span>
+        <span class="material-icons" class="my-app-nav-icon-text">flight_land</span>
         <span>履歴</span>
     </a>
 
     <a class="my-app-nav-link my-app-nav-link-center" onclick="openNewFlightModal()">
         <div class="my-app-plus-circle">+</div>
-        <span>追加</span>
+        <span>予約</span>
     </a>
 
-    <a class="my-app-nav-link" onclick="alert('設定画面は未実装です')">
-        <span class="my-app-nav-icon-text">⚙️</span>
+    <a class="my-app-nav-link" onclick="openAirportModal()">
+        <span class="material-icons" class="my-app-nav-icon-text">settings</span>
         <span>設定</span>
     </a>
 
     <a class="my-app-nav-link" onclick="startScan()">
-        <span class="my-app-nav-icon-text">📷</span>
+        <span class="material-icons" class="my-app-nav-icon-text">qr_code_scanner</span>
         <span>QR</span>
     </a>
 </nav>
@@ -1293,6 +1297,21 @@
         </div>
     </div>
 </div>
+
+<div id="toast" style="
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #002D5A;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transition: top 0.4s ease;
+  z-index: 2000;
+"></div>
 
 <script>
     const defaultAirports = [{code: 'HME', name: '自宅'}, {code: 'WRK', name: '仕事'}, {code: 'CFE', name: 'カフェ'}];
@@ -1805,7 +1824,9 @@
             duration: durationVal,
             seat: tempSeat || 'ANY',
             boardingClass: classVal,
-            checkedIn: false
+            checkedIn: false,
+            notifiedCheckIn: false,
+            notifiedLastCall: false
         };
         
         flights.push(f);
@@ -2315,7 +2336,8 @@ function processAddData(addData) {
 }
 
 setInterval(() => {
-    render();
+  render();
+  checkNotifications();
 }, 30000);
 
 
@@ -2400,6 +2422,51 @@ document.addEventListener('DOMContentLoaded', () => {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js');
 }
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.innerText = message;
+  toast.style.top = '20px';
+
+  setTimeout(() => {
+    toast.style.top = '-100px';
+  }, 4000);
+}
+
+function checkNotifications() {
+  const now = new Date();
+
+  flights.forEach(f => {
+    const [h, m] = f.time.split(':').map(Number);
+    const dep = new Date();
+    dep.setHours(h, m, 0, 0);
+
+    const diffMin = Math.floor((dep - now) / 60000);
+
+    // Check-in Open（10分前）
+    if (
+      diffMin === 10 &&
+      !f.notifiedCheckIn &&
+      !f.checkedIn
+    ) {
+      showToast(`✈️ Check-in Open ${f.from} → ${f.to}`);
+      f.notifiedCheckIn = true;
+    }
+
+    // Last Call（2分前）
+    if (
+      diffMin === 2 &&
+      !f.notifiedLastCall &&
+      !f.checkedIn
+    ) {
+      showToast(`⚠️ Last Call ${f.from} → ${f.to}`);
+      f.notifiedLastCall = true;
+    }
+  });
+
+  localStorage.setItem('ana_flights_v5', JSON.stringify(flights));
+}
+
 </script>
 
 </body>
