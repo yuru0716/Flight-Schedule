@@ -1405,6 +1405,7 @@
     }
 
     function handleSwipeStart(e, id) {
+        unlockAudio();
         startX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
         isDragging = true;
         const handle = e.target;
@@ -1449,7 +1450,8 @@
             handle.style.transition = 'transform 0.2s';
             handle.style.transform = `translateX(${maxMove}px)`;
             setTimeout(() => {
-                if (window.navigator.vibrate) window.navigator.vibrate(30);
+                playCheckInFeedback();
+                playCheckInBeep(); 
                 doCheckIn(id);
             }, 200);
         } else {
@@ -2469,6 +2471,55 @@ function checkNotifications() {
   localStorage.setItem('ana_flights_v5', JSON.stringify(flights));
 }
 
+function playCheckInFeedback() {
+
+    // 振動（対応端末のみ）
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+}
+
+let audioUnlocked = false;
+
+function unlockAudio() {
+    if (audioUnlocked) return;
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    ctx.resume();
+    audioUnlocked = true;
+}
+
+function playCheckInBeep() {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    const gain = ctx.createGain();
+    gain.gain.value = 0.0001;
+    gain.connect(ctx.destination);
+
+    // メイン音（高音）
+    const osc1 = ctx.createOscillator();
+    osc1.type = 'sine';
+    osc1.frequency.value = 1046; // C6
+
+    // サブ音（厚み）
+    const osc2 = ctx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.value = 659; // E5
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+
+    osc1.start();
+    osc2.start();
+
+    // フェードイン（派手）
+    gain.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + 0.1);
+
+    // フェードアウト（余韻）
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 2);
+
+    osc1.stop(ctx.currentTime + 3);
+    osc2.stop(ctx.currentTime + 3);
+}
 </script>
 
 </body>
