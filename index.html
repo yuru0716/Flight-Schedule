@@ -2386,146 +2386,194 @@
         }
 
         /* ========== Departure Board (FIDS) Screen ========== */
+        /* ========== Departure Board (FIDS) Screen ========== */
         .board-frame {
-            background: #000814;
+            background: #00040a;
             min-height: calc(100vh - 120px);
-            padding: 20px 10px;
+            padding: 15px 8px;
             display: flex;
             flex-direction: column;
-            font-family: 'Inter', 'Roboto Mono', monospace;
+            font-family: 'Inter', 'Hiragino Kaku Gothic ProN', sans-serif;
             color: #fff;
         }
 
         .board {
-            background: #001a35;
-            border: 4px solid #003366;
+            background: #000d1a;
+            border: 1px solid #002d5a;
             border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(0, 50, 100, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
         }
 
         .board-header-fids {
-            background: #002D5A;
-            padding: 15px 20px;
+            background: linear-gradient(to right, #001a35, #002D5A);
+            padding: 12px 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #0055a4;
+            border-bottom: 3px solid #ffaa00;
+            /* Yellow line common in Japanese FIDS */
         }
 
         .board-title-fids {
-            font-size: 1.4rem;
-            font-weight: 800;
-            letter-spacing: 4px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: 2px;
             color: #fff;
             text-transform: uppercase;
         }
 
         .board-clock-fids {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: #ffaa00;
-            /* Amber clock */
-            font-family: 'Roboto Mono', monospace;
+            font-family: 'inter', monospace;
         }
 
         .board-table-header {
             display: grid;
-            grid-template-columns: 80px 60px 1fr 1fr 60px 100px;
-            padding: 12px 15px;
-            background: #002244;
-            font-size: 0.75rem;
+            grid-template-columns: 70px 60px 1fr 60px 120px;
+            /* Adjusted columns */
+            padding: 10px 12px;
+            background: #00152b;
+            font-size: 0.7rem;
             font-weight: bold;
-            color: #99ccff;
+            color: rgba(255, 255, 255, 0.6);
             text-transform: uppercase;
-            border-bottom: 2px solid #003366;
+            border-bottom: 1px solid #002d5a;
         }
 
         .board-row-fids {
             display: grid;
-            grid-template-columns: 80px 60px 1fr 1fr 60px 100px;
-            padding: 15px;
+            grid-template-columns: 70px 60px 1fr 60px 120px;
+            padding: 14px 12px;
             align-items: center;
-            border-bottom: 1px solid #002d5a;
+            border-bottom: 1px solid rgba(0, 45, 90, 0.5);
             font-weight: 600;
-            font-size: 0.95rem;
-            letter-spacing: 1px;
-        }
-
-        .board-row-fids:nth-child(even) {
-            background: #001e3d;
+            font-size: 0.9rem;
+            transition: background 0.2s;
         }
 
         .board-row-fids.my-flight {
-            background: rgba(255, 170, 0, 0.05);
-            /* Subtle highlight for user flights */
-            border-left: 4px solid #ffaa00;
+            background: rgba(255, 170, 0, 0.08);
+            position: relative;
         }
 
-        .fids-flight {
-            color: #ffffff;
-            font-weight: 800;
-            font-family: 'Roboto Mono', monospace;
-        }
-
-        .fids-airline {
-            font-size: 0.65rem;
-            color: #aaa;
-            margin-bottom: 2px;
+        .board-row-fids.my-flight::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #ffaa00;
         }
 
         .fids-time {
             color: #ffaa00;
+            font-size: 1.15rem;
+            font-weight: 800;
+            font-family: 'inter', sans-serif;
+        }
+
+        .fids-airline-code {
+            font-size: 0.75rem;
+            color: #888;
             font-weight: 700;
-            font-family: 'Roboto Mono', monospace;
+        }
+
+        .fids-city-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .fids-city-name-jp {
+            font-size: 1rem;
+            color: #fff;
+            font-weight: 800;
+        }
+
+        .fids-city-name-en {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .fids-gate {
+            color: #ffaa00;
+            font-family: 'inter', monospace;
+            font-weight: 900;
+            text-align: center;
             font-size: 1.1rem;
         }
 
-        .fids-city {
-            color: #99ccff;
-            text-transform: uppercase;
-            font-weight: 700;
+        .fids-status-cell {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
         }
 
-        .fids-status {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 2px;
-            text-align: center;
+        .fids-status-jp {
+            font-size: 0.85rem;
             font-weight: 800;
-            background: #002D5A;
         }
 
-        .fids-status-boarding {
+        .fids-status-en {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Status Colors - Japanese Airport Style */
+        .color-boarding {
             color: #00ff00;
-            border: 1px solid #00ff00;
-            animation: fids-flicker 1.5s infinite;
         }
 
-        .fids-status-last-call {
-            color: #ff0000;
-            border: 1px solid #ff0000;
-            animation: fids-flicker 0.8s infinite;
+        .color-last-call {
+            color: #ff3300;
         }
 
-        .fids-status-no-show {
-            color: #666;
-            border: 1px solid #444;
-        }
-
-        .fids-status-delayed {
+        .color-delayed {
             color: #ffaa00;
-            border: 1px solid #ffaa00;
         }
 
-        .fids-status-scheduled {
+        .color-checkin {
+            color: #fff;
+        }
+
+        .color-scheduled {
             color: #99ccff;
-            opacity: 0.7;
+            opacity: 0.8;
         }
 
-        .fids-status-check-in {
-            color: #ffffff;
-            background: #0055a4;
+        .color-arrived {
+            color: #ffaa00;
+        }
+
+        .color-closed {
+            color: #666;
+        }
+
+        @keyframes fids-flicker {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .blink {
+            animation: fids-flicker 1.2s infinite;
         }
 
         /* --- Premium Class Themes --- */
@@ -2796,13 +2844,6 @@
                         <label class="booking-field-label">TO（到着地）</label>
                         <select id="toSelect"></select>
                     </div>
-                    <div class="booking-field" style="margin-top: 15px;">
-                        <label class="booking-field-label">WEATHER DATA CITY (ICAO)</label>
-                        <div style="font-size: 0.6rem; color: #888; margin-bottom: 5px;">現実の空港コード（例: RJTT=羽田, RJCC=新千歳）
-                        </div>
-                        <input type="text" id="weatherCityManual" placeholder="e.g. RJTT"
-                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; text-transform: uppercase;">
-                    </div>
                 </div>
             </div>
 
@@ -3010,6 +3051,14 @@
 "></div>
 
     <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered'))
+                    .catch(err => console.log('SW failed', err));
+            });
+        }
         const defaultAirports = [{ code: 'HME', name: '自宅' }, { code: 'WRK', name: '仕事' }, { code: 'CFE', name: 'カフェ' }];
         let airports = JSON.parse(localStorage.getItem('my_airports') || JSON.stringify(defaultAirports));
         let flights = JSON.parse(localStorage.getItem('ana_flights_final') || '[]');
@@ -3429,14 +3478,13 @@
                 }
 
                 const list = document.getElementById('flightList');
+                list.className = 'container';
 
                 const displayFlights = flights.filter(f => {
                     const status = getStatus(f);
                     const isHistory = (status === 'ARRIVED' || status === 'NOSHOW');
                     return currentTab === 'upcoming' ? !isHistory : isHistory;
                 });
-
-
 
                 let summaryHtml = '';
                 if (currentTab === 'history' && displayFlights.length > 0) {
@@ -3477,7 +3525,7 @@
                 }
 
                 if (displayFlights.length === 0) {
-                    list.innerHTML = summaryHtml + `<div style="text-align:center; color:#999; margin-top:50px">${currentTab === 'upcoming' ? 'これからの予定はありません' : '搭乗履歴はありません'}</div>`;
+                    list.innerHTML = summaryHtml + `<div style="text-align:center; color:#999; padding-top:100px">${currentTab === 'upcoming' ? 'これからの予定はありません' : '搭乗履歴はありません'}</div>`;
                     return;
                 }
 
@@ -3661,10 +3709,6 @@
                 <div style="color:rgba(255,255,255,0.8)">✈</div>
                 <div class="city-box"><div class="city-code" style="color:white !important;">${f.to}</div><div class="city-name" style="color:rgba(255,255,255,0.8) !important;">${formatAirport(f.to, false)}</div></div>
             </div>
-            ${f.weatherCity ? (() => {
-                            const w = getWeatherForAirport(f.weatherCity);
-                            return `<div class="weather-badge">目的地：${w.weather} ${w.temp}°C</div>`;
-                        })() : ''}
             <div class="time-row" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);">
                 <div class="time-box"><div class="time-label" style="color:rgba(255,255,255,0.7) !important;">DEP</div><div class="time-value" style="color:white !important; font-size:1.4rem;">${f.time}${countdownHtml}</div></div>
                 <div class="duration-center" style="color:rgba(255,255,255,0.6)">⎯ ${f.duration}m ⎯</div>
@@ -3741,6 +3785,7 @@
     </div>`;
                 }).join('');
 
+
                 displayFlights.forEach(f => {
                     const qrContainer = document.getElementById(`qrcode-${f.id}`);
                     if (qrContainer) {
@@ -3801,14 +3846,16 @@
                 fromName: fromAp ? fromAp.name : '',
                 to: toCode,
                 toName: toAp ? toAp.name : '',
-                weatherCity: document.getElementById('weatherCityManual').value.toUpperCase(),
                 time: timeVal,
                 duration: durationVal,
                 seat: tempSeat || 'ANY',
                 boardingClass: classVal,
                 checkedIn: false,
                 notifiedCheckIn: false,
-                notifiedLastCall: false
+                notified10Min: false,
+                notifiedFinalCall: false,
+                notifiedLanding: false,
+                notifiedArrived: false
             };
 
             flights.push(f);
@@ -3876,33 +3923,80 @@
             });
         }
 
-        function sendNotification(f) {
-            if (Notification.permission === "granted" && !notifiedFlights.has(f.id)) {
-                new Notification("搭乗手続きのご案内", { body: `${f.from} ✈ ${f.to} 便の受付が始まりました。` });
-                notifiedFlights.add(f.id);
+        function sendNotification(title, body, id) {
+            if (Notification.permission === "granted" && !notifiedFlights.has(id + body)) {
+                new Notification(title, { body: body });
+                notifiedFlights.add(id + body);
             }
         }
 
-        function showInAppBanner(f) {
-            if (bannerShownFor.has(f.id)) return;
+        function showInAppBanner(text, id) {
+            if (bannerShownFor.has(id + text)) return;
             const banner = document.getElementById('notifBanner');
-            document.getElementById('notifText').innerText = `搭乗手続きのご案内: ${f.from} ✈ ${f.to}`;
+            document.getElementById('notifText').innerText = text;
             banner.classList.add('show');
             setTimeout(hideBanner, 8000);
-            bannerShownFor.add(f.id);
+            bannerShownFor.add(id + text);
         }
 
         function hideBanner() { document.getElementById('notifBanner').classList.remove('show'); }
 
         function mainLoop() {
-            render(); // 10秒おきにステータスをチェックして自動振り分け
+            render();
+            const now = new Date().getTime();
+
             flights.forEach(f => {
-                if (getStatus(f) === 'RESERVED' && isCheckInOpen(f)) {
-                    sendNotification(f);
-                    showInAppBanner(f);
+                const status = getStatus(f);
+                const [h, m] = f.time.split(':').map(Number);
+                const depT = new Date(f.date).setHours(h, m);
+                const arrT = depT + (f.duration * 60000);
+                const diffDep = (depT - now) / 60000;
+                const diffArr = (arrT - now) / 60000;
+
+                // 1. 搭乗手続き開始 (60分前 & RESERVED)
+                if (status === 'RESERVED' && isCheckInOpen(f) && !f.notifiedCheckIn) {
+                    const msg = `搭乗手続き開始: ${f.from} ✈ ${f.to}`;
+                    sendNotification("搭乗案内", msg, f.id);
+                    showInAppBanner(msg, f.id);
+                    f.notifiedCheckIn = true;
+                }
+
+                // 2. 出発10分前 (RESERVED/CHECKED-IN)
+                if ((status === 'RESERVED' || status === 'CHECKED-IN') && diffDep <= 10 && diffDep > 2 && !f.notified10Min) {
+                    const msg = `出発10分前です。搭乗口へお急ぎください (${f.from} ✈ ${f.to})`;
+                    sendNotification("出発案内", msg, f.id);
+                    showInAppBanner(msg, f.id);
+                    f.notified10Min = true;
+                }
+
+                // 3. 最終案内 (2分前)
+                if ((status === 'RESERVED' || status === 'CHECKED-IN') && diffDep <= 2 && diffDep > 0 && !f.notifiedFinalCall) {
+                    const msg = `FINAL CALL: まもなくドアが閉まります！ (${f.from} ✈ ${f.to})`;
+                    sendNotification("最終案内", msg, f.id);
+                    showInAppBanner(msg, f.id);
+                    f.notifiedFinalCall = true;
+                }
+
+                // 4. 到着5分前 (INFLIGHT)
+                if (status === 'INFLIGHT' && diffArr <= 5 && diffArr > 0 && !f.notifiedLanding) {
+                    const msg = `まもなく ${f.to} に到着いたします。お忘れ物にご注意ください`;
+                    sendNotification("着陸案内", msg, f.id);
+                    showInAppBanner(msg, f.id);
+                    f.notifiedLanding = true;
+                }
+
+                // 5. 到着時 (ARRIVEDになる瞬間)
+                if (status === 'ARRIVED' && !f.notifiedArrived) {
+                    const msg = `${f.to} に到着しました。本日のご搭乗ありがとうございました！`;
+                    sendNotification("到着通知", msg, f.id);
+                    showInAppBanner(msg, f.id);
+                    f.notifiedArrived = true;
                 }
             });
+
+            localStorage.setItem('ana_flights_final', JSON.stringify(flights));
         }
+
 
         let currentBookingStep = 1;
 
@@ -3916,7 +4010,6 @@
             document.getElementById('flightDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('timeInput').value = '';
             document.getElementById('durationInput').value = '60';
-            document.getElementById('weatherCityManual').value = '';
             document.getElementById('classSelect').value = 'ECONOMY';
 
             updateHeader();
@@ -4031,13 +4124,6 @@
         function confirmSeat() { if (tempSeat) document.getElementById('seatLabel').innerText = tempSeat; closeModal('seatModal'); }
         function updateSelectOptions() {
             const combined = [...airports];
-            // airportNameMapにある主要空港を重複なく追加
-            Object.entries(airportNameMap).forEach(([code, name]) => {
-                if (!combined.find(a => a.code === code)) {
-                    combined.push({ code, name });
-                }
-            });
-
             const html = combined.map(a => `<option value="${a.code}">${a.code} - ${a.name}</option>`).join('');
             document.getElementById('fromSelect').innerHTML = html;
             document.getElementById('toSelect').innerHTML = html;
@@ -4054,8 +4140,11 @@
         function deleteAirport(i) { airports.splice(i, 1); localStorage.setItem('my_airports', JSON.stringify(airports)); renderAirportList(); }
 
         if (Notification.permission === "granted") document.getElementById('notifBtn').style.filter = "none";
+
+
         render();
         setInterval(mainLoop, 10000);
+
 
         function repeatFlight(f) {
             switchTab('upcoming');
@@ -4208,6 +4297,12 @@
         }
 
         function updatePortalUI(f, container) {
+            // 到着していたら自動終了
+            if (getStatus(f) === 'ARRIVED') {
+                togglePortal();
+                return;
+            }
+
             const now = new Date().getTime();
             const [h, m] = f.time.split(':').map(Number);
             const depT = new Date(f.date).setHours(h, m);
@@ -4807,16 +4902,37 @@
             });
         }
 
-        function getBoardStatusLabel(f, isArrival = false) {
-            const status = getStatus(f);
-            switch (status) {
-                case 'ARRIVED': return 'ARRIVED';
-                case 'CHECKEDIN': return isArrival ? 'IN-FLIGHT' : 'CHECK-IN';
-                case 'INFLIGHT': return isArrival ? 'LANDED' : 'BOARDING';
-                case 'LASTCALL': return isArrival ? 'DELAYED' : 'LAST CALL';
-                case 'NOSHOW': return 'NO SHOW';
-                default: return 'SCHEDULED';
+        function getFidsStatus(f, isArrival = false) {
+            if (f.external) {
+                // 外部データの場合はマッピング
+                const s = f.status.toUpperCase();
+                const map = {
+                    'ARRIVED': { jp: '到着済', en: 'ARRIVED', color: 'color-arrived' },
+                    'LANDED': { jp: '着陸済', en: 'LANDED', color: 'color-arrived' },
+                    'DELAYED': { jp: '遅延', en: 'DELAYED', color: 'color-delayed' },
+                    'SCHEDULED': { jp: '定刻', en: 'SCHEDULED', color: 'color-scheduled' },
+                    'BOARDING': { jp: '搭乗中', en: 'BOARDING', color: 'color-boarding blink' },
+                    'LAST CALL': { jp: '最終案内', en: 'LAST CALL', color: 'color-last-call blink' }
+                };
+                return map[s] || { jp: s, en: s, color: 'color-scheduled' };
             }
+
+            // 自便の場合は時刻ベースで計算
+            const now = new Date();
+            const [h, m] = f.time.split(':').map(Number);
+            const depT = new Date();
+            depT.setHours(h, m, 0, 0);
+            const diff = (depT - now) / 60000;
+
+            const status = getStatus(f);
+            if (status === 'ARRIVED') return { jp: '到着済', en: 'ARRIVED', color: 'color-arrived' };
+            if (status === 'INFLIGHT') return { jp: isArrival ? '着陸済' : '飛行中', en: isArrival ? 'LANDED' : 'IN-FLIGHT', color: 'color-boarding' };
+
+            if (diff > 60) return { jp: '定刻', en: 'SCHEDULED', color: 'color-scheduled' };
+            if (diff > 20) return { jp: '手続き中', en: 'CHECK-IN', color: 'color-checkin' };
+            if (diff > 10) return { jp: '搭乗中', en: 'BOARDING', color: 'color-boarding blink' };
+            if (diff > 3) return { jp: '最終案内', en: 'LAST CALL', color: 'color-last-call blink' };
+            return { jp: 'ゲート締切', en: 'GATE CLOSED', color: 'color-closed' };
         }
 
         function toggleBoardMode() {
@@ -4854,15 +4970,7 @@
                 allFlights = externalArrivals;
             } else {
                 allFlights = [
-                    ...flights.map(f => ({
-                        flight: getFlightNumber(f),
-                        airline: 'TASK AIR',
-                        from: f.from,
-                        to: f.to,
-                        time: f.time,
-                        status: getBoardStatusLabel(f, false),
-                        external: false
-                    })),
+                    ...flights.map(f => ({ ...f, flight: getFlightNumber(f), airline: 'TASK AIR', external: false })),
                     ...externalFlights
                 ];
             }
@@ -4872,33 +4980,38 @@
                 <div class="board-frame">
                     <div class="board">
                         <div class="board-header-fids">
-                            <div class="board-title-fids">${fidsType}</div>
+                            <div class="board-title-fids">${fidsType} / ${fidsType === 'DEPARTURES' ? '出発案内' : '到着案内'}</div>
                             <div class="board-clock-fids">${timeStr}</div>
                         </div>
                         
                         <div class="board-table-header">
                             <span>TIME</span>
-                            <span>${isArrivals ? 'FROM' : 'TO'}</span>
-                            <span></span>
                             <span>FLIGHT</span>
+                            <span>${isArrivals ? 'FROM' : 'TO'}</span>
                             <span>GATE</span>
-                            <span>STATUS</span>
+                            <span style="text-align:right">STATUS</span>
                         </div>
 
                         ${allFlights.map(f => {
                 const gate = getGateForFlight(f.flight);
+                const sObj = getFidsStatus(f, isArrivals);
+                const cityName = formatAirport(isArrivals ? f.from : f.to, f.external);
+                const airportCode = isArrivals ? f.from : f.to;
+
                 return `
                             <div class="board-row-fids ${!f.external ? 'my-flight' : ''}">
                                 <div class="fids-time">${f.time}</div>
-                                <div class="fids-city">${formatAirport(isArrivals ? f.from : f.to, f.external)}</div>
-                                <div style="font-size: 0.7rem; color: #666;">${isArrivals ? '→ ' + formatAirport(f.to, f.external) : '← ' + formatAirport(f.from, f.external)}</div>
                                 <div>
-                                    <div class="fids-airline">${f.airline || 'INTER'}</div>
-                                    <div class="fids-flight">${formatFlightDisplay(f)}</div>
+                                    <div class="fids-airline-code">${f.airline || 'TA'} ${f.flight.replace(/[^0-9]/g, '')}</div>
                                 </div>
-                                <div style="font-family: monospace; font-weight: bold; color: #99ccff;">${gate}</div>
-                                <div class="fids-status fids-status-${f.status.toLowerCase().replace(' ', '-')}">
-                                    ${f.status}
+                                <div class="fids-city-group">
+                                    <div class="fids-city-name-jp">${cityName}</div>
+                                    <div class="fids-city-name-en">${airportCode}</div>
+                                </div>
+                                <div class="fids-gate">${gate}</div>
+                                <div class="fids-status-cell ${sObj.color}">
+                                    <div class="fids-status-jp">${sObj.jp}</div>
+                                    <div class="fids-status-en">${sObj.en}</div>
                                 </div>
                             </div>
                         `}).join('')}
