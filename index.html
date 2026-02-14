@@ -2385,177 +2385,215 @@
             transform: translateX(24px);
         }
 
-        /* ========== Departure Board (FIDS) Screen ========== */
-        /* ========== Departure Board (FIDS) Screen ========== */
+        /* ========== Departure Board (FIDS) Screen - Image Based Redesign ========== */
         .board-frame {
-            background: #00040a;
+            background: #000;
             min-height: calc(100vh - 120px);
-            padding: 15px 8px;
+            padding: 0;
             display: flex;
             flex-direction: column;
-            font-family: 'Inter', 'Hiragino Kaku Gothic ProN', sans-serif;
+            font-family: 'Inter', sans-serif;
             color: #fff;
         }
 
-        .board {
-            background: #000d1a;
-            border: 1px solid #002d5a;
-            border-radius: 4px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        .fids-main-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            flex: 1;
+        }
+
+        .fids-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #333;
         }
 
         .board-header-fids {
-            background: linear-gradient(to right, #001a35, #002D5A);
-            padding: 12px 15px;
+            background: #0044cc;
+            /* Rich Blue from image */
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid #ffaa00;
-            /* Yellow line common in Japanese FIDS */
+        }
+
+        .board-title-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .board-title-group .material-icons {
+            font-size: 2rem;
+            transform: rotate(45deg);
         }
 
         .board-title-fids {
-            font-size: 1.2rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            color: #fff;
-            text-transform: uppercase;
-        }
-
-        .board-clock-fids {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #ffaa00;
-            font-family: 'inter', monospace;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
         }
 
         .board-table-header {
             display: grid;
-            grid-template-columns: 70px 60px 1fr 60px 120px;
-            /* Adjusted columns */
-            padding: 10px 12px;
-            background: #00152b;
+            grid-template-columns: 80px 1fr 120px 140px;
+            padding: 8px 15px;
+            background: #f0f0f0;
+            color: #333;
             font-size: 0.7rem;
-            font-weight: bold;
-            color: rgba(255, 255, 255, 0.6);
+            font-weight: 800;
             text-transform: uppercase;
-            border-bottom: 1px solid #002d5a;
+            border-bottom: 1px solid #ccc;
         }
 
         .board-row-fids {
             display: grid;
-            grid-template-columns: 70px 60px 1fr 60px 120px;
-            padding: 14px 12px;
+            grid-template-columns: 80px 1fr 120px 140px;
+            padding: 12px 15px;
             align-items: center;
-            border-bottom: 1px solid rgba(0, 45, 90, 0.5);
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-
-        .board-row-fids.my-flight {
-            background: rgba(255, 170, 0, 0.08);
-            position: relative;
-        }
-
-        .board-row-fids.my-flight::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: #ffaa00;
+            border-bottom: 1px solid #222;
+            background: #050505;
+            min-height: 50px;
         }
 
         .fids-time {
-            color: #ffaa00;
-            font-size: 1.15rem;
+            color: #fff;
+            font-size: 1.1rem;
             font-weight: 800;
             font-family: 'inter', sans-serif;
         }
 
-        .fids-airline-code {
-            font-size: 0.75rem;
-            color: #888;
-            font-weight: 700;
+        .fids-time.expected {
+            color: #ff3300;
+            /* Red for expected time if different */
         }
 
-        .fids-city-group {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .fids-city-name-jp {
-            font-size: 1rem;
-            color: #fff;
+        .fids-destination {
+            font-size: 1.2rem;
             font-weight: 800;
+            color: #fff;
         }
 
-        .fids-city-name-en {
-            font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.5);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .fids-flight-info {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #ccc;
         }
 
         .fids-gate {
-            color: #ffaa00;
-            font-family: 'inter', monospace;
-            font-weight: 900;
-            text-align: center;
             font-size: 1.1rem;
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
         }
 
-        .fids-status-cell {
-            text-align: right;
+        /* Status Badges */
+        .fids-remarks {
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 2px;
+            justify-content: flex-end;
         }
 
-        .fids-status-jp {
-            font-size: 0.85rem;
-            font-weight: 800;
-        }
-
-        .fids-status-en {
-            font-size: 0.6rem;
-            font-weight: 700;
+        .fids-badge {
+            padding: 4px 10px;
+            border-radius: 2px;
+            font-size: 0.7rem;
+            font-weight: 900;
             text-transform: uppercase;
+            min-width: 100px;
+            text-align: center;
         }
 
-        /* Status Colors - Japanese Airport Style */
-        .color-boarding {
-            color: #00ff00;
-        }
-
-        .color-last-call {
-            color: #ff3300;
-        }
-
-        .color-delayed {
-            color: #ffaa00;
-        }
-
-        .color-checkin {
+        .badge-go-to-gate {
+            background: #00cc66;
             color: #fff;
         }
 
-        .color-scheduled {
-            color: #99ccff;
-            opacity: 0.8;
+        .badge-last-call {
+            background: #cc3300;
+            color: #fff;
         }
 
-        .color-arrived {
-            color: #ffaa00;
+        .badge-late {
+            background: #ff9900;
+            color: #000;
         }
 
-        .color-closed {
-            color: #666;
+        .badge-boarding {
+            background: #00cc66;
+            color: #fff;
+        }
+
+        .badge-scheduled {
+            background: none;
+            color: #aaa;
+            border: 1px solid #444;
+        }
+
+        .badge-closed {
+            background: #333;
+            color: #888;
+        }
+
+        .badge-arrived {
+            background: #0044cc;
+            color: #fff;
+        }
+
+        /* Sidebar - Walking Time */
+        .fids-sidebar {
+            width: 120px;
+            background: #0044cc;
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid #0033aa;
+        }
+
+        .sidebar-header {
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #0033aa;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+
+        .walking-list {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .walking-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: #fff;
+            color: #0044cc;
+        }
+
+        .walking-gate-letter {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .walking-minutes {
+            font-size: 1.1rem;
+            font-weight: 900;
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        .walking-minutes::after {
+            content: 'min';
+            font-size: 0.6rem;
+            font-weight: 700;
         }
 
         @keyframes fids-flicker {
@@ -2794,8 +2832,6 @@
                 style="cursor:pointer; font-size:1.35rem; color:rgba(255,255,255,0.7);">qr_code_scanner</span>
             <span class="material-icons" onclick="openSettings()"
                 style="cursor:pointer; font-size:1.35rem; color:rgba(255,255,255,0.7);">settings</span>
-            <span id="notifBtn" onclick="requestNotification()"
-                style="cursor:pointer; font-size:1.2rem; filter:grayscale(1);">🔔</span>
         </div>
         <div id="notifBanner" class="in-app-banner" onclick="hideBanner()">
             <span>✈</span> <span id="notifText">搭乗手続きが可能な便があります</span>
@@ -2955,11 +2991,11 @@
                     </div>
                     <div class="settings-item">
                         <div>
-                            <div class="settings-label">通知テスト</div>
-                            <div class="settings-desc">ブラウザ通知が届くか確認します</div>
+                            <div class="settings-label">通知許可</div>
+                            <div class="settings-desc">通知を許可します</div>
                         </div>
                         <button class="booking-btn" style="flex:0; padding:8px 15px; font-size:0.75rem;"
-                            onclick="requestNotification()">テスト</button>
+                            onclick="enableNotifications()">許可</button>
                     </div>
                 </div>
             </div>
@@ -5106,6 +5142,42 @@
             const a = airports.find(a => a.code === code);
             return a ? a.name : code;
         }
+
+        
+        async function enableNotifications() {
+    const permission = await Notification.requestPermission();
+
+    if (permission !== "granted") {
+        alert("通知が許可されていません");
+        return;
+    }
+
+    await registerPush();
+    alert("通知を有効化しました ✈");
+}
+
+
+
+async function registerPush() {
+    const reg = await navigator.serviceWorker.ready;
+
+    const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array("BGHmKETXx2roUDR4uEvPxoa-Np52KVLYkxGB0sGKtWfLEafMsMjcuttnnC4q9A4BCWFX8ai6d_IqglaDZdHbIQk")
+    });
+
+    localStorage.setItem("pushSub", JSON.stringify(sub));
+}
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+}
     </script>
 
 
