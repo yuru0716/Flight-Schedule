@@ -2832,6 +2832,8 @@
                 style="cursor:pointer; font-size:1.35rem; color:rgba(255,255,255,0.7);">qr_code_scanner</span>
             <span class="material-icons" onclick="openSettings()"
                 style="cursor:pointer; font-size:1.35rem; color:rgba(255,255,255,0.7);">settings</span>
+            <span id="notifBtn" onclick="requestNotification()"
+                style="cursor:pointer; font-size:1.2rem; filter:grayscale(1);">🔔</span>
         </div>
         <div id="notifBanner" class="in-app-banner" onclick="hideBanner()">
             <span>✈</span> <span id="notifText">搭乗手続きが可能な便があります</span>
@@ -2991,11 +2993,11 @@
                     </div>
                     <div class="settings-item">
                         <div>
-                            <div class="settings-label">通知許可</div>
-                            <div class="settings-desc">通知を許可します</div>
+                            <div class="settings-label">通知テスト</div>
+                            <div class="settings-desc">ブラウザ通知が届くか確認します</div>
                         </div>
                         <button class="booking-btn" style="flex:0; padding:8px 15px; font-size:0.75rem;"
-                            onclick="enableNotifications()">許可</button>
+                            onclick="requestNotification()">テスト</button>
                     </div>
                 </div>
             </div>
@@ -5142,42 +5144,6 @@
             const a = airports.find(a => a.code === code);
             return a ? a.name : code;
         }
-
-        
-        async function enableNotifications() {
-    const permission = await Notification.requestPermission();
-
-    if (permission !== "granted") {
-        alert("通知が許可されていません");
-        return;
-    }
-
-    await registerPush();
-    alert("通知を有効化しました ✈");
-}
-
-
-
-async function registerPush() {
-    const reg = await navigator.serviceWorker.ready;
-
-    const sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array("BGHmKETXx2roUDR4uEvPxoa-Np52KVLYkxGB0sGKtWfLEafMsMjcuttnnC4q9A4BCWFX8ai6d_IqglaDZdHbIQk")
-    });
-
-    localStorage.setItem("pushSub", JSON.stringify(sub));
-}
-
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-        .replace(/-/g, '+')
-        .replace(/_/g, '/');
-
-    const rawData = atob(base64);
-    return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
-}
     </script>
 
 
